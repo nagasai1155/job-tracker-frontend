@@ -25,15 +25,21 @@
   --status-rejected-bg: #fff1f2;
   --status-rejected-text: #be123c;
 
-  --shadow-sm: 0 1px 3px rgba(37,99,235,0.07), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 16px rgba(37,99,235,0.10);
-  --shadow-lg: 0 10px 32px rgba(37,99,235,0.13);
+  --shadow-sm: 0 1px 3px rgba(37, 99, 235, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(37, 99, 235, 0.10);
+  --shadow-lg: 0 10px 32px rgba(37, 99, 235, 0.13);
   --radius: 12px;
   --radius-sm: 8px;
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
   font-family: 'Inter', sans-serif;
@@ -58,14 +64,21 @@ body {
   padding: 3rem 2.5rem;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 24px 64px rgba(30,64,175,0.25);
+  box-shadow: 0 24px 64px rgba(30, 64, 175, 0.25);
   text-align: center;
   animation: slideUp 0.4s ease;
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .login-logo-icon {
@@ -105,8 +118,14 @@ body {
   height: 1px;
   background: var(--border);
 }
-.divider::before { left: 0; }
-.divider::after  { right: 0; }
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
+}
 
 .google-btn-wrap {
   display: flex;
@@ -127,7 +146,11 @@ body {
   font-family: 'Inter', sans-serif;
   transition: background 0.2s, transform 0.1s;
 }
-.mock-login-btn:hover { background: var(--blue-dark); transform: translateY(-1px); }
+
+.mock-login-btn:hover {
+  background: var(--blue-dark);
+  transform: translateY(-1px);
+}
 
 /* ─── Dashboard Layout ───────────────────────────────────────────────────────── */
 .dashboard {
@@ -254,6 +277,82 @@ body {
   color: var(--text);
 }
 
+.controls-count {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-left: 0.15rem;
+}
+
+.controls-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 320px;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.6rem 2.2rem 0.6rem 2.3rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  background: var(--bg-surface);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  background: #fff;
+}
+
+.clear-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.clear-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-muted);
+}
+
+
 /* ─── Buttons ────────────────────────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
@@ -270,16 +369,32 @@ body {
   font-family: 'Inter', sans-serif;
   transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
 }
-.btn:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-.btn:active { transform: translateY(0); }
-.btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.btn:hover {
+  background: var(--blue-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 
 .btn-outline {
   background: transparent;
   color: var(--blue);
   border: 1.5px solid var(--blue-mid);
 }
-.btn-outline:hover { background: var(--blue-light); }
+
+.btn-outline:hover {
+  background: var(--blue-light);
+}
 
 /* ─── Job Grid ───────────────────────────────────────────────────────────────── */
 .job-grid {
@@ -303,11 +418,21 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.job-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.job-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
 
 .job-header {
   display: flex;
@@ -340,10 +465,25 @@ body {
   flex-shrink: 0;
 }
 
-.job-status.status-Applied   { background: var(--status-applied-bg);   color: var(--status-applied-text); }
-.job-status.status-Interview { background: var(--status-interview-bg); color: var(--status-interview-text); }
-.job-status.status-Offer     { background: var(--status-offer-bg);     color: var(--status-offer-text); }
-.job-status.status-Rejected  { background: var(--status-rejected-bg);  color: var(--status-rejected-text); }
+.job-status.status-Applied {
+  background: var(--status-applied-bg);
+  color: var(--status-applied-text);
+}
+
+.job-status.status-Interview {
+  background: var(--status-interview-bg);
+  color: var(--status-interview-text);
+}
+
+.job-status.status-Offer {
+  background: var(--status-offer-bg);
+  color: var(--status-offer-text);
+}
+
+.job-status.status-Rejected {
+  background: var(--status-rejected-bg);
+  color: var(--status-rejected-text);
+}
 
 .job-footer {
   display: flex;
@@ -367,7 +507,12 @@ body {
   font-size: 0.85rem;
   transition: all 0.2s;
 }
-.btn-delete:hover { background: var(--status-rejected-bg); color: var(--status-rejected-text); border-color: #fca5a5; }
+
+.btn-delete:hover {
+  background: var(--status-rejected-bg);
+  color: var(--status-rejected-text);
+  border-color: #fca5a5;
+}
 
 /* ─── Empty / Error State ────────────────────────────────────────────────────── */
 .empty-state {
@@ -380,7 +525,10 @@ body {
   color: var(--text-muted);
 }
 
-.empty-state p { font-size: 0.95rem; line-height: 1.6; }
+.empty-state p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
 
 .error-state {
   grid-column: 1 / -1;
@@ -417,8 +565,13 @@ body {
 }
 
 @keyframes fadeOverlay {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
@@ -470,7 +623,7 @@ body {
 .form-group input:focus,
 .form-group select:focus {
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
   background: #fff;
 }
 
@@ -502,17 +655,54 @@ body {
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* ─── Responsive ─────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .stats-bar { grid-template-columns: repeat(2, 1fr); }
-  .header { padding: 1rem; }
-  .main-content { padding: 1rem; }
-  .user-name { display: none; }
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .header {
+    padding: 1rem;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .controls-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
-  .stats-bar { grid-template-columns: repeat(2, 1fr); }
-  .job-grid  { grid-template-columns: 1fr; }
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .job-grid {
+    grid-template-columns: 1fr;
+  }
 }

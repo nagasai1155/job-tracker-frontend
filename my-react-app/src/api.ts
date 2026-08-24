@@ -1,7 +1,7 @@
 import { Job, CreateJobPayload } from './types';
 
 // CRA proxy forwards /api → http://localhost:5051/api (no CORS needed)
-const BASE_URL = '/api';
+const BASE_URL = 'https://job-tracker-backend-1-0ri4.onrender.com/api';
 
 let authToken: string = '';
 

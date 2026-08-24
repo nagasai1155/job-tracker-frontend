@@ -14,10 +14,15 @@ export function Dashboard() {
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [errorMsg, setErrorMsg]   = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const avatarUrl =
     user?.picture ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name ?? 'User')}&background=2563eb&color=fff`;
+
+  const filteredJobs = jobs.filter(job =>
+    job.company.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // ── Fetch jobs from Spring Boot backend ───────────────────────────────────
   const loadJobs = useCallback(async () => {
@@ -83,7 +88,14 @@ export function Dashboard() {
         </div>
       );
     }
-    return jobs.map(job => (
+    if (filteredJobs.length === 0) {
+      return (
+        <div className="empty-state">
+          <p>No applications match your search for "<strong>{searchTerm}</strong>".<br />Try adjusting your search terms! 🔍</p>
+        </div>
+      );
+    }
+    return filteredJobs.map(job => (
       <JobCard key={job.id} job={job} onDelete={handleDelete} />
     ));
   };
@@ -115,16 +127,45 @@ export function Dashboard() {
         {/* Controls */}
         <div className="controls">
           <h2>
-            Applications ({loadState === 'loading' ? '…' : jobs.length})
+            {loadState === 'loading' ? (
+              'Applications (…)'
+            ) : searchTerm ? (
+              <>
+                Applications <span className="controls-count">({filteredJobs.length} of {jobs.length})</span>
+              </>
+            ) : (
+              <>
+                Applications <span className="controls-count">({jobs.length})</span>
+              </>
+            )}
           </h2>
-          <button className="btn" id="addJobBtn" onClick={() => setModalOpen(true)}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="3">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Add Job
-          </button>
+
+          <div className="controls-actions">
+            <div className="search-box">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="Search by company..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+              {searchTerm && (
+                <button className="clear-btn" onClick={() => setSearchTerm('')} aria-label="Clear search">
+                  &times;
+                </button>
+              )}
+            </div>
+
+            <button className="btn" id="addJobBtn" onClick={() => setModalOpen(true)}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="3">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add Job
+            </button>
+          </div>
         </div>
 
         {/* Job Grid */}
