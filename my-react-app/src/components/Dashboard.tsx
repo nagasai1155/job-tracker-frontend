@@ -8,7 +8,11 @@ import { AddJobModal } from './AddJobModal';
 
 type LoadState = 'loading' | 'success' | 'error';
 
-export function Dashboard() {
+interface DashboardProps {
+  onNavigate: (page: 'settings') => void;
+}
+
+export function Dashboard({ onNavigate }: DashboardProps) {
   const { user, logout } = useAuth();
   const [jobs, setJobs]           = useState<Job[]>([]);
   const [loadState, setLoadState] = useState<LoadState>('loading');
@@ -111,6 +115,15 @@ export function Dashboard() {
         <div className="user-profile">
           <span className="user-name">{user?.name ?? 'User'}</span>
           <img src={avatarUrl} alt={`${user?.name ?? 'User'} avatar`} />
+          <button
+            className="settings-icon-btn"
+            id="settingsNavBtn"
+            onClick={() => onNavigate('settings')}
+            title="Profile & Settings"
+            aria-label="Open profile settings"
+          >
+            ⚙️
+          </button>
           <button className="btn btn-outline" id="logoutBtn" onClick={logout}>
             Logout
           </button>
