@@ -75,17 +75,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
-  const login = useCallback((credential: string, isMock = false) => {
-    let loggedInUser: User;
-    if (isMock) {
-      loggedInUser = { name: 'Mock User', email: 'mock@example.com', picture: '' };
-      setAuthToken('mock-token');
-      localStorage.setItem('authToken', 'mock-token');
-    } else {
-      loggedInUser = decodeJwt(credential);
-      setAuthToken(credential);
-      localStorage.setItem('authToken', credential);
-    }
+  const login = useCallback((credential: string) => {
+    const loggedInUser = decodeJwt(credential);
+    setAuthToken(credential);
+    localStorage.setItem('authToken', credential);
     localStorage.setItem('authUser', JSON.stringify(loggedInUser));
     setUser(loggedInUser);
   }, []);
@@ -107,8 +100,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 // ─── Google Auth Hook ─────────────────────────────────────────────────────────
 export function useGoogleAuth(
   buttonRef: React.RefObject<HTMLDivElement | null>,
-  onLogin: (credential: string) => void,
-  onMockLogin: () => void
+  onLogin: (credential: string) => void
 ) {
   useEffect(() => {
     const el = buttonRef.current;
@@ -125,13 +117,6 @@ export function useGoogleAuth(
         size: 'large',
         type: 'standard',
       });
-    } else {
-      // Fallback mock button for local dev without GSI
-      const btn = document.createElement('button');
-      btn.className = 'mock-login-btn';
-      btn.textContent = '🔑 Login with Google (Mock)';
-      btn.onclick = onMockLogin;
-      el.appendChild(btn);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

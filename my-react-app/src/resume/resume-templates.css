@@ -1,0 +1,483 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   Resume Templates — Print-Ready High-DPI A4 Sheet Layouts (ATS Classic + Modern)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Shared Base A4 Document ────────────────────────────────────────────────── */
+.rt-page {
+  width: 794px; /* Exact A4 Width at 96 DPI: 210mm */
+  min-height: 1123px; /* Exact A4 Height at 96 DPI: 297mm */
+  background: #ffffff;
+  font-family: Arial, 'Helvetica Neue', Helvetica, 'Liberation Sans', sans-serif;
+  color: #000000;
+  line-height: 1.35;
+  box-sizing: border-box;
+  display: block;
+  margin: 0 auto;
+  position: relative;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
+.rt-placeholder {
+  color: #888888;
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   TEMPLATE 1 — Classic Ivy / SWE ATS (1:1 Pixel-Perfect Match to Reference PDF)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.rt1-container {
+  width: 100%;
+  padding: 10mm 15mm 10mm 15mm; /* Standard 0.4–0.6 in margins */
+  box-sizing: border-box;
+  color: #000000;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────────── */
+.rt1-header {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 6px;
+  box-sizing: border-box;
+}
+
+.rt1-name {
+  font-size: 21px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 1px;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.rt1-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 3px;
+  text-align: center;
+}
+
+.rt1-contact-rows {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.rt1-contact-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: 10px;
+  color: #000000;
+}
+
+.rt1-contact-item {
+  display: inline-flex;
+  align-items: center;
+  color: #000000;
+  text-decoration: none;
+}
+
+/* ─── Sections ───────────────────────────────────────────────────────────────── */
+.rt1-section {
+  width: 100%;
+  margin-bottom: 7px;
+  box-sizing: border-box;
+}
+
+.rt1-section:last-child {
+  margin-bottom: 0;
+}
+
+.rt1-section-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #000000;
+  text-transform: none;
+  border-bottom: 1px solid #000000;
+  padding-bottom: 1px;
+  margin: 0 0 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ─── Shared Row Helpers ─────────────────────────────────────────────────────── */
+.rt1-row-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+  font-size: 10.5px;
+  box-sizing: border-box;
+}
+
+.rt1-sub-row {
+  margin-bottom: 2px;
+}
+
+.rt1-bold {
+  font-weight: 700;
+  color: #000000;
+}
+
+.rt1-italic {
+  font-style: italic;
+  color: #000000;
+}
+
+.rt1-date-text {
+  flex-shrink: 0;
+}
+
+.rt1-role-text {
+  font-size: 11.5px;
+}
+
+.rt1-company-text {
+  font-size: 10.5px;
+}
+
+.rt1-tech-text {
+  font-size: 10.5px;
+  text-align: right;
+}
+
+.rt1-proj-tech {
+  font-weight: 400;
+}
+
+/* ─── Bullets List ───────────────────────────────────────────────────────────── */
+.rt1-bullets {
+  width: 100%;
+  padding-left: 14px;
+  margin: 2px 0 0;
+  list-style-type: disc;
+  box-sizing: border-box;
+}
+
+.rt1-bullets li {
+  font-size: 10.5px;
+  line-height: 1.34;
+  margin-bottom: 2px;
+  color: #000000;
+  text-align: left;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+}
+
+.rt1-bullets li:last-child {
+  margin-bottom: 0;
+}
+
+.rt1-bullets strong {
+  font-weight: 700;
+  color: #000000;
+}
+
+/* ─── Experience & Projects Blocks ───────────────────────────────────────────── */
+.rt1-exp-block {
+  width: 100%;
+  margin-bottom: 6px;
+  box-sizing: border-box;
+}
+
+.rt1-exp-block:last-child {
+  margin-bottom: 0;
+}
+
+.rt1-proj-block {
+  width: 100%;
+  margin-bottom: 6px;
+  box-sizing: border-box;
+}
+
+.rt1-proj-block:last-child {
+  margin-bottom: 0;
+}
+
+.rt1-edu-block {
+  width: 100%;
+  margin-bottom: 4px;
+  box-sizing: border-box;
+}
+
+.rt1-edu-block:last-child {
+  margin-bottom: 0;
+}
+
+/* ─── Skills Summary Table ───────────────────────────────────────────────────── */
+.rt1-skills-table {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 1px;
+}
+
+.rt1-skill-entry {
+  display: flex;
+  align-items: baseline;
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: #000000;
+  width: 100%;
+}
+
+.rt1-skill-key {
+  font-weight: 700;
+  width: 175px;
+  min-width: 175px;
+  flex-shrink: 0;
+  color: #000000;
+}
+
+.rt1-skill-val {
+  flex: 1;
+  color: #000000;
+}
+
+/* ─── Certifications ─────────────────────────────────────────────────────────── */
+.rt1-certs-list {
+  margin-top: 2px;
+}
+
+.rt1-certs-list li {
+  margin-bottom: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   TEMPLATE 2 — Modern Clean Split (Slate Sidebar + Fluid Content)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.rt2-container {
+  width: 100%;
+  display: flex;
+  min-height: 1123px;
+  box-sizing: border-box;
+}
+
+.rt2-sidebar {
+  width: 32%;
+  min-width: 220px;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 14mm 6mm 14mm 10mm;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.rt2-sidebar-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 3px;
+  letter-spacing: normal !important;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+.rt2-sidebar-tagline {
+  font-size: 11px;
+  color: #38bdf8;
+  font-weight: 600;
+  margin-bottom: 20px;
+  letter-spacing: normal !important;
+}
+
+.rt2-sidebar-section {
+  width: 100%;
+  margin-bottom: 18px;
+  box-sizing: border-box;
+}
+
+.rt2-sidebar-section:last-child {
+  margin-bottom: 0;
+}
+
+.rt2-sidebar-title {
+  width: 100%;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin: 0 0 8px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #334155;
+  box-sizing: border-box;
+}
+
+.rt2-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 6px;
+  font-size: 10px;
+  color: #cbd5e1;
+  word-break: break-all;
+  letter-spacing: normal !important;
+}
+
+.rt2-contact-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 9.5px;
+  color: #38bdf8;
+}
+
+.rt2-edu-item {
+  width: 100%;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.rt2-edu-item:last-child {
+  margin-bottom: 0;
+}
+
+.rt2-edu-degree {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: normal !important;
+}
+
+.rt2-edu-school {
+  font-size: 9.5px;
+  color: #94a3b8;
+  letter-spacing: normal !important;
+}
+
+.rt2-edu-year {
+  font-size: 9px;
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: normal !important;
+}
+
+.rt2-main {
+  flex: 1;
+  width: 68%;
+  padding: 14mm 14mm 14mm 10mm;
+  box-sizing: border-box;
+}
+
+.rt2-main-section {
+  width: 100%;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.rt2-main-section:last-child {
+  margin-bottom: 0;
+}
+
+.rt2-main-title {
+  width: 100%;
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #0f172a;
+  margin: 0 0 8px;
+  padding-bottom: 3px;
+  border-bottom: 1.5px solid #e2e8f0;
+  box-sizing: border-box;
+}
+
+.rt2-summary {
+  width: 100%;
+  font-size: 10.5px;
+  color: #475569;
+  line-height: 1.5;
+  box-sizing: border-box;
+  text-align: left;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+}
+
+.rt2-exp-item {
+  width: 100%;
+  margin-bottom: 11px;
+  padding-left: 10px;
+  border-left: 2px solid #dbeafe;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.rt2-exp-item:last-child {
+  margin-bottom: 0;
+}
+
+.rt2-exp-dot {
+  position: absolute;
+  left: -5px;
+  top: 3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 1.5px solid #fff;
+}
+
+.rt2-exp-header {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 2px;
+  box-sizing: border-box;
+}
+
+.rt2-exp-role {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: normal !important;
+}
+
+.rt2-exp-duration {
+  font-size: 9.5px;
+  color: #64748b;
+  font-weight: 600;
+  flex-shrink: 0;
+  letter-spacing: normal !important;
+}
+
+.rt2-exp-company {
+  width: 100%;
+  font-size: 10.5px;
+  color: #2563eb;
+  font-weight: 600;
+  margin-bottom: 3px;
+  letter-spacing: normal !important;
+}
+
+.rt2-exp-desc {
+  width: 100%;
+  font-size: 10.5px;
+  color: #475569;
+  line-height: 1.45;
+  box-sizing: border-box;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+}

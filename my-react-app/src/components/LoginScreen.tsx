@@ -6,9 +6,8 @@ export function LoginScreen() {
   const googleBtnRef = useRef<HTMLDivElement>(null);
 
   const handleLogin = useCallback((credential: string) => login(credential), [login]);
-  const handleMockLogin = useCallback(() => login('', true), [login]);
 
-  useGoogleAuth(googleBtnRef, handleLogin, handleMockLogin);
+  useGoogleAuth(googleBtnRef, handleLogin);
 
   return (
     <div className="login-screen">

@@ -8,11 +8,15 @@ import { AddJobModal } from './AddJobModal';
 
 type LoadState = 'loading' | 'success' | 'error';
 
+type AppTab = 'jobs' | 'resume';
+
 interface DashboardProps {
+  activeTab: AppTab;
+  onTabChange: (tab: AppTab) => void;
   onNavigate: (page: 'settings') => void;
 }
 
-export function Dashboard({ onNavigate }: DashboardProps) {
+export function Dashboard({ activeTab, onTabChange, onNavigate }: DashboardProps) {
   const { user, logout } = useAuth();
   const [jobs, setJobs]           = useState<Job[]>([]);
   const [loadState, setLoadState] = useState<LoadState>('loading');
@@ -112,6 +116,36 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           <div className="brand-icon">💼</div>
           <h1>Job Tracker Pro</h1>
         </div>
+
+        {/* Navigation Tabs */}
+        <nav className="nav-tabs" id="mainNavTabs">
+          <button
+            className={`nav-tab ${activeTab === 'jobs' ? 'nav-tab-active' : ''}`}
+            onClick={() => onTabChange('jobs')}
+            id="navTabJobs"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
+            Job Tracker
+          </button>
+          <button
+            className={`nav-tab ${activeTab === 'resume' ? 'nav-tab-active' : ''}`}
+            onClick={() => onTabChange('resume')}
+            id="navTabResume"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            Resume Builder
+          </button>
+        </nav>
+
         <div className="user-profile">
           <span className="user-name">{user?.name ?? 'User'}</span>
           <img src={avatarUrl} alt={`${user?.name ?? 'User'} avatar`} />

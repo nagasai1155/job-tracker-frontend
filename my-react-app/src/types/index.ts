@@ -26,6 +26,6 @@ export interface User {
 
 export interface AuthContextValue {
   user: User | null;
-  login: (credential: string, isMock?: boolean) => void;
+  login: (credential: string) => void;
   logout: () => void;
 }
