@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, FormEvent, KeyboardEvent } from 'react';
+import React, { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { sendChatMessage, ChatMessage } from '../services/aiChatService';
 
 const SUGGESTED_PROMPTS = [

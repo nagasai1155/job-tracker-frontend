@@ -1,5 +1,5 @@
 import React from 'react';
-import { InterviewSession, InterviewSummaryResult } from './types';
+import { InterviewSession } from './types';
 
 interface InterviewSummaryProps {
   session: InterviewSession;

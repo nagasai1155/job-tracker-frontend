@@ -21,7 +21,6 @@ export function InterviewPage({ onNavigate }: InterviewPageProps) {
   const [phase, setPhase] = useState<InterviewPhase>('history');
   const [config, setConfig] = useState<InterviewConfig | null>(null);
   const [currentSession, setCurrentSession] = useState<InterviewSession | null>(null);
-  const [isEvaluating, setIsEvaluating] = useState(false);
 
   // Handle starting a new interview
   const handleStartInterview = useCallback((newConfig: InterviewConfig) => {
@@ -45,7 +44,6 @@ export function InterviewPage({ onNavigate }: InterviewPageProps) {
 
       setCurrentSession(session);
       setPhase('summary');
-      setIsEvaluating(true);
 
       try {
         const summary = await getInterviewSummary(config, transcript);
@@ -91,8 +89,6 @@ export function InterviewPage({ onNavigate }: InterviewPageProps) {
         } catch {
           // ignore
         }
-      } finally {
-        setIsEvaluating(false);
       }
     },
     [config]
