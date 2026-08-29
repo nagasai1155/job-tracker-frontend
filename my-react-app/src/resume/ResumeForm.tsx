@@ -927,32 +927,36 @@ export function ResumeForm() {
                       <label>
                         Bullet Points / Key Features <span className="rb-required-star">*</span>
                       </label>
-                      {(proj.bullets || []).map((bullet, bIdx) => (
-                        <div key={bIdx} style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.4rem' }}>
-                          <input
-                            type="text"
-                            placeholder={`Bullet point ${bIdx + 1}`}
-                            value={bullet || ''}
-                            onChange={e => updateProjectBullet(i, bIdx, e.target.value)}
-                          />
-                          <button
-                            type="button"
-                            className="rb-remove-btn"
-                            style={{ position: 'static', alignSelf: 'center' }}
-                            onClick={() => removeProjectBullet(i, bIdx)}
-                            title="Remove bullet"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
+                      <div className="rb-bullets-container">
+                        {(proj.bullets || []).map((bullet, bIdx) => (
+                          <div key={bIdx} className="rb-bullet-input-row">
+                            <span className="rb-bullet-dot">•</span>
+                            <textarea
+                              className="rb-bullet-textarea"
+                              rows={2}
+                              placeholder={`Key contribution, tech used, or outcome (bullet ${bIdx + 1})`}
+                              value={bullet || ''}
+                              onChange={e => updateProjectBullet(i, bIdx, e.target.value)}
+                            />
+                            <button
+                              type="button"
+                              className="rb-bullet-delete-btn"
+                              onClick={() => removeProjectBullet(i, bIdx)}
+                              title="Remove bullet"
+                              aria-label={`Remove bullet ${bIdx + 1}`}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                       <button
                         type="button"
                         className="rb-add-btn"
-                        style={{ fontSize: '0.72rem', padding: '0.25rem 0.55rem', marginTop: '0.2rem' }}
+                        style={{ fontSize: '0.75rem', padding: '0.35rem 0.7rem', marginTop: '0.35rem' }}
                         onClick={() => addProjectBullet(i)}
                       >
-                        + Add Bullet
+                        + Add Bullet Point
                       </button>
                     </div>
                   </div>

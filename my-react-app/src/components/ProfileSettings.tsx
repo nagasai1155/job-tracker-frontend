@@ -81,18 +81,25 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
   return (
     <div className="ps-page">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="header">
-        <div className="header-brand">
-          <div className="brand-icon">💼</div>
-          <h1>Job Tracker Pro</h1>
-        </div>
-        <div className="user-profile">
-          <button className="ps-back-btn" id="backToDashboardBtn" onClick={onBack}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Back to Dashboard
-          </button>
+      <header className="app-header">
+        <div className="header-inner">
+          <div className="header-brand">
+            <div className="brand-badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+              </svg>
+            </div>
+            <span className="brand-text">JobTracker</span>
+          </div>
+          <div className="header-actions">
+            <button className="ps-back-btn" id="backToDashboardBtn" onClick={onBack}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span>Back to Dashboard</span>
+            </button>
+          </div>
         </div>
       </header>
 

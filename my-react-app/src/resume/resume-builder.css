@@ -5,8 +5,8 @@
 /* ─── Two-Panel Grid Layout ─────────────────────────────────────────────────── */
 .rb-layout {
   display: grid;
-  grid-template-columns: minmax(360px, 1fr) minmax(440px, 1.25fr);
-  gap: 1.5rem;
+  grid-template-columns: minmax(350px, 1fr) minmax(440px, 1.2fr);
+  gap: 1.35rem;
   align-items: start;
 }
 
@@ -342,41 +342,174 @@
   cursor: not-allowed;
 }
 
-/* ─── Textarea ───────────────────────────────────────────────────────────────── */
-.rb-textarea {
+/* ─── Form Groups & Input Controls ─────────────────────────────────────────── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
   width: 100%;
-  padding: 0.55rem 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #334155;
+  letter-spacing: -0.01em;
+}
+
+.form-group input,
+.rb-form-body input[type="text"],
+.rb-form-body input[type="email"],
+.rb-form-body input[type="tel"],
+.rb-form-body input[type="url"] {
+  display: block;
+  width: 100%;
+  padding: 0.52rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.84rem;
   font-family: var(--font-main);
-  color: var(--text-main);
-  background: var(--bg-surface);
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+}
+
+.form-group input:focus,
+.rb-form-body input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  background: #ffffff;
+}
+
+.form-group input::placeholder,
+.rb-form-body input::placeholder,
+.rb-textarea::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* ─── Textarea Styles ────────────────────────────────────────────────────────── */
+.rb-textarea,
+.form-group textarea,
+.rb-form-body textarea {
+  display: block;
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-family: var(--font-main);
+  color: #0f172a;
+  background: #ffffff;
   transition: all 0.15s ease;
   outline: none;
   resize: vertical;
-  min-height: 70px;
-  line-height: 1.45;
+  min-height: 85px;
+  line-height: 1.55;
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
 }
 
-.rb-textarea:focus {
-  border-color: var(--border-focus);
+.rb-textarea:focus,
+.form-group textarea:focus,
+.rb-form-body textarea:focus {
+  border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  background: #ffffff;
+}
+
+/* ─── Multi-line Bullet Point Editors ────────────────────────────────────────── */
+.rb-bullets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.rb-bullet-input-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  position: relative;
+}
+
+.rb-bullet-dot {
+  font-size: 1rem;
+  color: #2563eb;
+  line-height: 1.8;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.rb-bullet-textarea {
+  flex: 1;
+  min-height: 52px;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-family: var(--font-main);
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  resize: vertical;
+  line-height: 1.45;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.rb-bullet-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.rb-bullet-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-top: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.rb-bullet-delete-btn:hover {
+  background: #fef2f2;
+  color: #ef4444;
+  border-color: #fecaca;
 }
 
 /* ─── Repeatable Cards ───────────────────────────────────────────────────────── */
 .rb-repeat-item {
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 0.85rem;
-  margin-bottom: 0.65rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 0.85rem;
   position: relative;
-  transition: border-color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .rb-repeat-item:hover {
-  border-color: var(--primary-border);
+  border-color: #cbd5e1;
+  background: #ffffff;
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.05);
 }
 
 .rb-repeat-item:last-child {
@@ -386,44 +519,49 @@
 .rb-repeat-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.65rem;
+  gap: 0.85rem;
+  margin-bottom: 0.65rem;
+}
+
+.rb-repeat-row:last-child {
+  margin-bottom: 0;
 }
 
 .rb-remove-btn {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 22px;
-  height: 22px;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
+  background: transparent;
   border: 1px solid transparent;
-  border-radius: var(--radius-xs);
-  color: var(--text-dim);
-  font-size: 0.95rem;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .rb-remove-btn:hover {
-  background: var(--status-rejected-bg);
-  color: var(--status-rejected-text);
-  border-color: var(--status-rejected-border);
+  background: #fef2f2;
+  color: #ef4444;
+  border-color: #fecaca;
 }
 
 .rb-add-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.45rem 0.85rem;
-  margin-top: 0.5rem;
-  background: var(--primary-light);
-  color: var(--primary);
-  border: 1px dashed var(--primary-border);
-  border-radius: var(--radius-sm);
-  font-size: 0.78rem;
+  padding: 0.45rem 0.9rem;
+  margin-top: 0.65rem;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px dashed #bfdbfe;
+  border-radius: 8px;
+  font-size: 0.8rem;
   font-weight: 600;
   font-family: var(--font-main);
   cursor: pointer;
@@ -432,7 +570,8 @@
 
 .rb-add-btn:hover {
   background: #dbeafe;
-  border-color: var(--primary);
+  border-color: #2563eb;
+  transform: translateY(-1px);
 }
 
 /* ─── Skill Tags ─────────────────────────────────────────────────────────────── */

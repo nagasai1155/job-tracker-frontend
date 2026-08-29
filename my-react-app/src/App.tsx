@@ -5,9 +5,12 @@ import { LoginScreen } from './components/LoginScreen';
 import { Dashboard } from './components/Dashboard';
 import { ProfileSettings } from './components/ProfileSettings';
 import { ResumeBuilder } from './resume/ResumeBuilder';
+import { InterviewPage } from './interview/InterviewPage';
+import { AppHeader } from './components/AppHeader';
+import { AIChatBot } from './components/AIChatBot';
 
 type Page = 'dashboard' | 'settings';
-type AppTab = 'jobs' | 'resume';
+type AppTab = 'jobs' | 'resume' | 'interview';
 
 function AppContent() {
   const { user } = useAuth();
@@ -20,22 +23,22 @@ function AppContent() {
     return <ProfileSettings onBack={() => setPage('dashboard')} />;
   }
 
-  if (activeTab === 'resume') {
-    return (
-      <ResumeBuilder
+  return (
+    <div className="app-shell">
+      <AppHeader
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        onNavigate={(p) => setPage(p)}
+        onNavigate={setPage}
       />
-    );
-  }
-
-  return (
-    <Dashboard
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-      onNavigate={(p) => setPage(p)}
-    />
+      {activeTab === 'jobs' ? (
+        <Dashboard onNavigate={setPage} />
+      ) : activeTab === 'resume' ? (
+        <ResumeBuilder onNavigate={setPage} />
+      ) : (
+        <InterviewPage onNavigate={setPage} />
+      )}
+      <AIChatBot />
+    </div>
   );
 }
 

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
 import { ResumeProvider, useResume } from './ResumeContext';
 import { ResumeForm } from './ResumeForm';
@@ -10,17 +9,17 @@ import { validateResume } from './types';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import './resume-builder.css';
+import './resume-templates.css';
 
 type AppTab = 'jobs' | 'resume';
 
 interface ResumeBuilderProps {
-  activeTab: AppTab;
-  onTabChange: (tab: AppTab) => void;
   onNavigate: (page: 'settings') => void;
+  activeTab?: AppTab;
+  onTabChange?: (tab: AppTab) => void;
 }
 
-function ResumeBuilderInner({ activeTab, onTabChange, onNavigate }: ResumeBuilderProps) {
-  const { user, logout } = useAuth();
+function ResumeBuilderInner({ onNavigate }: ResumeBuilderProps) {
   const { data, setData } = useResume();
   const [template, setTemplate] = useState<TemplateName>('classic');
   const [saving, setSaving] = useState(false);
@@ -36,7 +35,7 @@ function ResumeBuilderInner({ activeTab, onTabChange, onNavigate }: ResumeBuilde
   const [autoScale, setAutoScale] = useState<number>(0.75);
   const [sheetHeight, setSheetHeight] = useState<number>(1123);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [modalZoom, setModalZoom] = useState<number>(1.0);
+  const [modalZoom, setModalZoom] = useState<number>(0.95);
 
   // Measure and compute auto scale based on workbench canvas width
   const updateScale = useCallback(() => {
@@ -45,7 +44,7 @@ function ResumeBuilderInner({ activeTab, onTabChange, onNavigate }: ResumeBuilde
       // 36px comfortable margin inside canvas
       const availableWidth = Math.max(260, containerWidth - 36);
       // Standard A4 width = 794px
-      const calculated = Math.min(1.15, Math.max(0.35, availableWidth / 794));
+      const calculated = Math.min(0.85, Math.max(0.4, (availableWidth * 0.95) / 794));
       setAutoScale(Number(calculated.toFixed(3)));
     }
   }, []);
@@ -100,10 +99,6 @@ function ResumeBuilderInner({ activeTab, onTabChange, onNavigate }: ResumeBuilde
     setZoomMode('manual');
     setManualZoom(1.0);
   };
-
-  const avatarUrl =
-    user?.picture ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name ?? 'User')}&background=2563eb&color=fff`;
 
   // ── Load saved resume on mount ────────────────────────────────────────────
   useEffect(() => {
@@ -224,63 +219,9 @@ function ResumeBuilderInner({ activeTab, onTabChange, onNavigate }: ResumeBuilde
   }, [data, checkValidation]);
 
   return (
-    <div className="dashboard">
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <header className="header">
-        <div className="header-brand">
-          <div className="brand-icon">💼</div>
-          <h1>Job Tracker Pro</h1>
-        </div>
-
-        {/* Navigation Tabs */}
-        <nav className="nav-tabs" id="mainNavTabs">
-          <button
-            className={`nav-tab ${activeTab === 'jobs' ? 'nav-tab-active' : ''}`}
-            onClick={() => onTabChange('jobs')}
-            id="navTabJobs"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-            </svg>
-            Job Tracker
-          </button>
-          <button
-            className={`nav-tab ${activeTab === 'resume' ? 'nav-tab-active' : ''}`}
-            onClick={() => onTabChange('resume')}
-            id="navTabResume"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-              <polyline points="10 9 9 9 8 9"/>
-            </svg>
-            Resume Builder
-          </button>
-        </nav>
-
-        <div className="user-profile">
-          <span className="user-name">{user?.name ?? 'User'}</span>
-          <img src={avatarUrl} alt={`${user?.name ?? 'User'} avatar`} />
-          <button
-            className="settings-icon-btn"
-            id="settingsNavBtnResume"
-            onClick={() => onNavigate('settings')}
-            title="Profile & Settings"
-            aria-label="Open profile settings"
-          >
-            ⚙️
-          </button>
-          <button className="btn btn-outline" id="logoutBtnResume" onClick={logout}>
-            Logout
-          </button>
-        </div>
-      </header>
-
+    <>
       {/* ── Main Content ─────────────────────────────────────────────────── */}
-      <div className="main-content" style={{ maxWidth: 1350 }}>
+      <div className="app-main-content" style={{ maxWidth: 1280, padding: '1.75rem 2rem 4rem' }}>
         <div className="rb-layout">
           {/* Left — Form */}
           <ResumeForm />
@@ -525,7 +466,7 @@ function ResumeBuilderInner({ activeTab, onTabChange, onNavigate }: ResumeBuilde
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
