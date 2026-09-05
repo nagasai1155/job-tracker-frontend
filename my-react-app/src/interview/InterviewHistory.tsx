@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { InterviewSession, INTERVIEW_STORAGE_KEY } from './types';
+import { InterviewSession, InterviewType, INTERVIEW_TRACKS, INTERVIEW_STORAGE_KEY } from './types';
 
 interface InterviewHistoryProps {
-  onStartNew: () => void;
+  onStartNew: (track?: InterviewType) => void;
   onViewSession: (session: InterviewSession) => void;
 }
 
 export function InterviewHistory({ onStartNew, onViewSession }: InterviewHistoryProps) {
+  const [showTrackModal, setShowTrackModal] = useState(false);
   const [sessions, setSessions] = useState<InterviewSession[]>(() => {
     try {
       const saved = localStorage.getItem(INTERVIEW_STORAGE_KEY);
@@ -36,14 +37,69 @@ export function InterviewHistory({ onStartNew, onViewSession }: InterviewHistory
       ? '#f97316'
       : '#ef4444';
 
+  const handleSelectTrack = (track: InterviewType) => {
+    setShowTrackModal(false);
+    onStartNew(track);
+  };
+
   return (
     <div className="iv-history" id="interviewHistory">
+      {/* ── Track Selector Modal ── */}
+      {showTrackModal && (
+        <div className="iv-track-modal-overlay" onClick={() => setShowTrackModal(false)}>
+          <div className="iv-track-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="iv-track-modal-header">
+              <div>
+                <h2 className="iv-track-modal-title">Select Interview Track</h2>
+                <p className="iv-track-modal-subtitle">Choose the type of mock interview you want to practice</p>
+              </div>
+              <button
+                className="iv-track-modal-close"
+                onClick={() => setShowTrackModal(false)}
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="iv-track-modal-grid">
+              {INTERVIEW_TRACKS.map((track) => (
+                <div
+                  key={track.id}
+                  className="iv-track-select-card"
+                  onClick={() => handleSelectTrack(track.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSelectTrack(track.id);
+                  }}
+                >
+                  <span className="iv-tsc-icon">{track.icon}</span>
+                  <div className="iv-tsc-info">
+                    <div className="iv-tsc-top">
+                      <h3 className="iv-tsc-title">{track.title}</h3>
+                      <span className={`iv-tsc-badge ${track.id}`}>{track.badge}</span>
+                    </div>
+                    <p className="iv-tsc-desc">{track.subtitle || track.description}</p>
+                  </div>
+                  <div className="iv-tsc-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="iv-history-header">
         <div>
-          <h1 className="iv-history-title">Interview History</h1>
+          <h2 className="iv-history-title">Past Interview Sessions</h2>
           <p className="iv-history-subtitle">
             {sessions.length === 0
-              ? 'No interviews yet. Start your first mock interview!'
+              ? 'No interviews yet. Click New Interview to begin!'
               : `${sessions.length} interview${sessions.length !== 1 ? 's' : ''} completed`}
           </p>
         </div>
@@ -57,7 +113,7 @@ export function InterviewHistory({ onStartNew, onViewSession }: InterviewHistory
               Clear All
             </button>
           )}
-          <button className="iv-btn-primary" onClick={onStartNew} id="startNewInterviewBtn">
+          <button className="iv-btn-primary" onClick={() => setShowTrackModal(true)} id="startNewInterviewBtn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
@@ -77,7 +133,7 @@ export function InterviewHistory({ onStartNew, onViewSession }: InterviewHistory
           </div>
           <h3>No Interview History</h3>
           <p>Complete a mock interview to see your results here.</p>
-          <button className="iv-btn-primary" onClick={onStartNew}>
+          <button className="iv-btn-primary" onClick={() => setShowTrackModal(true)}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>

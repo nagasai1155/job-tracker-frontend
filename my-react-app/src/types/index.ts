@@ -29,3 +29,16 @@ export interface AuthContextValue {
   login: (credential: string) => void;
   logout: () => void;
 }
+
+export type AppTab = 'dashboard' | 'jobs' | 'resume' | 'interview';
+
+export function getDisplayName(name?: string, email?: string): string {
+  if (name && name.trim() && name !== 'Google User') {
+    return name.trim();
+  }
+  if (email && email.includes('@')) {
+    const handle = email.split('@')[0];
+    return handle.charAt(0).toUpperCase() + handle.slice(1);
+  }
+  return 'Nagasai';
+}

@@ -101,18 +101,16 @@ function extractProfileAndHeader(fullDoc: string, parsed: any) {
   }
 
   if (!fullName) {
-    if (email.toLowerCase().includes('saibalam') || email.toLowerCase().includes('nagasai')) {
-      fullName = 'Naga Sai Balam';
-    } else {
-      fullName = parsed.fullName || 'Naga Sai Balam';
-    }
+    fullName = parsed.fullName || '';
   }
 
   // 7. Title
-  let title = 'Full Stack Developer';
+  let title = '';
   const titleMatch = fullDoc.match(/\b(Full Stack Developer|Software Engineer|Frontend Developer|Backend Developer|Software Development Engineer|SDE)\b/i);
   if (titleMatch) {
     title = titleMatch[0];
+  } else if (parsed.title) {
+    title = parsed.title;
   }
 
   return { fullName, title, phone, email, linkedin, github, portfolio };
@@ -233,50 +231,21 @@ function parseExperience(expText: string): ExperienceItem[] {
     }
 
     results.push({
-      role: role || (company.toLowerCase().includes('eizen') ? 'Full Stack Developer Intern' : 'Software Engineer Intern'),
-      company: company || (role.toLowerCase().includes('full stack') ? 'Eizen.ai' : 'Sendora.ai'),
-      duration: duration || (company.toLowerCase().includes('eizen') ? 'Jan 2025 – Jul 2025' : 'Oct 2025 – Dec 2025'),
+      role: role || '',
+      company: company || '',
+      duration: duration || '',
       description,
     });
   }
 
-    return results.length > 0
-    ? results
-    : [
-        {
-          role: 'Software Engineer Intern',
-          company: 'Sendora.ai',
-          duration: 'Oct 2025 – Dec 2025',
-          techStack: 'Next.js, Node.js, REST APIs, OAuth 2.0, JWT, SQL',
-          documentType: '[Offer Letter]',
-          description: '• Engineered a daily content-aggregation pipeline processing 1,000+ viral posts and videos via YouTube and LinkedIn APIs, cutting manual discovery effort by 60%.\n• Established secure authentication and authorization across 2 API layers using OAuth 2.0 and JWT, protecting application resources and user data.\n• Designed and developed scalable REST APIs, optimized SQL queries, performed debugging, and improved application performance for high-volume data processing.\n• Contributed across the Software Development Lifecycle (SDLC), participating in code reviews, debugging, testing, deployment, and production issue resolution while maintaining high code quality.',
-        },
-        {
-          role: 'Full Stack Developer Intern',
-          company: 'Eizen.ai',
-          duration: 'Jan 2025 – Jul 2025',
-          techStack: 'React.js, Spring Boot, AI/ML Integration',
-          documentType: '[Experience Letter]',
-          description: '• Redesigned and optimized React.js modules with emphasis on maintainability, scalability, performance optimization, and reusable component architecture\n• Integrated ML-powered real-time video analytics into a mobile app, enabling object detection and event recognition across 4 camera feeds.\n• Collaborated with AI/ML engineers to integrate 4+ data-driven models into user-facing applications, ensuring seamless communication between frontend and backend services.\n• Delivered 3 real-time monitoring dashboards and analytics features that accelerated decision-making and improved operational efficiency.',
-        },
-      ];
+  return results;
 }
 
 /**
  * Parses Skills into clean individual skill pills
  */
 function parseSkills(skillsText: string): string[] {
-  if (!skillsText) {
-    return [
-      'Java', 'C++', 'JavaScript', 'SQL', 'TypeScript',
-      'React.js', 'Next.js', 'HTML5', 'CSS3', 'Tailwind CSS',
-      'Spring Boot', 'Node.js', 'RESTful APIs',
-      'MySQL', 'MongoDB',
-      'Git', 'GitHub', 'Postman', 'Cursor IDE', 'Claude AI', 'AI-assisted Development',
-      'AWS (Basics)', 'Docker',
-      'Object-Oriented Programming (OOPs)', 'Data Structures & Algorithms',
-    ];
-  }
+  if (!skillsText) return [];
 
   const cleaned = skillsText
     .replace(/(?:Programming Languages|Web Technologies|Databases|Developer Tools|DevOps|Core Concepts|Frameworks|Libraries|Languages|Tools)[\s:]+/gi, ', ')
@@ -306,51 +275,41 @@ function parseSkills(skillsText: string): string[] {
     }
   }
 
-  return result.length > 0
-    ? result
-    : [
-        'Java', 'C++', 'JavaScript', 'SQL', 'TypeScript',
-        'React.js', 'Next.js', 'HTML5', 'CSS3', 'Tailwind CSS',
-        'Spring Boot', 'Node.js', 'RESTful APIs',
-        'MySQL', 'MongoDB',
-        'Git', 'GitHub', 'Postman', 'Cursor IDE', 'Claude AI', 'AI-assisted Development',
-        'AWS (Basics)', 'Docker',
-        'Object-Oriented Programming (OOPs)', 'Data Structures & Algorithms',
-      ];
+  return result;
 }
 
 /**
  * Parses Education details
  */
 function parseEducation(eduText: string): EducationItem[] {
-  const text = eduText || '';
+  if (!eduText) return [];
+  const text = eduText.trim();
 
-  let gpa = '8.1';
+  let gpa = '';
   const gpaMatch = text.match(/GPA[\s:]*([0-9.]+)/i);
   if (gpaMatch) gpa = gpaMatch[1];
 
-  let year = 'July 2021 – August 2025';
+  let year = '';
   const dateMatch = text.match(/(?:July|August|June|May|Jan|Aug)?[a-z]*\s*\d{4}\s*[—–-]\s*(?:July|August|June|May|Jan|Aug)?[a-z]*\s*\d{4}/i);
   if (dateMatch) year = dateMatch[0].trim();
 
-  let degree = 'Bachelor of Technology (B.Tech) – Computer Science and Engineering';
-  const degreeMatch = text.match(/Bachelor of Technology\s*(?:\(B\.Tech\))?\s*[—–-]?\s*[A-Za-z\s]+/i);
+  let degree = '';
+  const degreeMatch = text.match(/(?:Bachelor|Master|B\.Tech|M\.Tech|B\.S\.|M\.S\.|B\.E\.|M\.E\.|Diploma)[A-Za-z\s(),.–-]+/i);
   if (degreeMatch) degree = degreeMatch[0].trim();
 
-  let school = 'Lovely Professional University';
-  if (text.includes('Lovely Professional University')) {
-    school = 'Lovely Professional University';
-  }
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  let school = lines.length > 0 ? lines[0] : '';
+  let location = '';
 
-  let location = 'Punjab, India';
+  if (!degree && !school && !year) return [];
 
   return [
     {
-      degree,
-      school,
-      year,
-      location,
-      gpa,
+      degree: degree || (lines[1] || ''),
+      school: school || '',
+      year: year || '',
+      location: location || '',
+      gpa: gpa || '',
     },
   ];
 }
@@ -361,9 +320,8 @@ function parseEducation(eduText: string): EducationItem[] {
 function parseProjects(projText: string): ProjectItem[] {
   if (!projText) return [];
 
-  // Split multiple projects by project title markers
   const projectSplits = projText
-    .split(/(?=(?:AI\s*Interview\s*Preparation\s*Platform|E-commerce\s*Website|[A-Z][A-Za-z0-9\s-]{4,35}\s+[—–-]\s+(?:Next|React|Node|Spring|Python|Java|Full)))/i)
+    .split(/(?=(?:[A-Z][A-Za-z0-9\s-]{4,35}\s+[—–-]\s+(?:Next|React|Node|Spring|Python|Java|Full|Web|Mobile|App)))/i)
     .map(p => p.trim())
     .filter(p => p.length > 20);
 
@@ -374,28 +332,16 @@ function parseProjects(projText: string): ProjectItem[] {
     let techStack = '';
     let duration = '';
 
-    // Title line pattern: REQUIRE SPACES AROUND DASH (\s+[—–-]\s+) so hyphens inside "E-commerce" or "React.js" are NOT split!
     const headerMatch = block.match(/^([^\n—–-]+(?:\s+[^\n—–-]+)*)\s+[—–-]\s+([^•\n\d]+)(?:\s*(\d{4}))?/);
     if (headerMatch) {
       name = headerMatch[1].trim();
       techStack = headerMatch[2].trim().replace(/,\s*$/, '');
       duration = headerMatch[3] ? headerMatch[3].trim() : (block.match(/\b(20\d\d)\b/) ? block.match(/\b(20\d\d)\b/)![1] : '');
     } else {
-      if (block.toLowerCase().includes('interview')) {
-        name = 'AI Interview Preparation Platform';
-        techStack = 'Next.js, Spring Boot, MySQL';
-        duration = '2026';
-      } else if (block.toLowerCase().includes('commerce')) {
-        name = 'E-commerce Website';
-        techStack = 'React.js, Node.js, MySQL';
-        duration = '2023';
-      } else {
-        const firstLine = block.split('\n')[0].trim();
-        name = firstLine.replace(/\s+[—–-].*$/, '').trim();
-      }
+      const firstLine = block.split('\n')[0].trim();
+      name = firstLine.replace(/\s+[—–-].*$/, '').trim();
     }
 
-    // Extract bullet points (skip index 0 header line)
     const rawBullets = block.split(/\s*[•▪►]\s+/);
     const bulletParts = rawBullets
       .slice(1)
@@ -406,36 +352,11 @@ function parseProjects(projText: string): ProjectItem[] {
       name: name || 'Project',
       techStack: techStack || '',
       duration: duration || '',
-      bullets: bulletParts.length > 0 ? bulletParts : ['Designed and implemented application architecture and features.'],
+      bullets: bulletParts.length > 0 ? bulletParts : [],
     });
   }
 
-  return results.length > 0
-    ? results
-    : [
-        {
-          name: 'AI Interview Preparation Platform',
-          techStack: 'Next.js, Spring Boot, MySQL',
-          duration: '2026',
-          bullets: [
-            'Wrote reusable service layers and implemented exception handling, validation, logging, and modular architecture to improve maintainability and simplify future enhancements.',
-            'Integrated LLM APIs and AI-assisted workflows for interview generation, answer evaluation, automated feedback, and intelligent recommendations using prompt engineering techniques.',
-            'Implemented secure authentication, logging, error handling, and role-based authorization following software engineering best practices.',
-            'Developed analytics dashboards tracking 3 key metrics – interview performance, ATS score, and skill improvement – to help users identify gaps.',
-          ],
-        },
-        {
-          name: 'E-commerce Website',
-          techStack: 'React.js, Node.js, MySQL',
-          duration: '2023',
-          bullets: [
-            'Developed and deployed a full-stack e-commerce application with dedicated interfaces for users and administrators to enhance user experience.',
-            'Built core features including add-to-cart functionality, product management, and order workflows, improving the overall shopping experience.',
-            'Ensured cross-browser compatibility and responsive design, providing a seamless experience across desktop, tablet, and mobile devices.',
-            'Applied secure user authentication with sign-up, sign-in features using JWT for encrypted credential handling.',
-          ],
-        },
-      ];
+  return results;
 }
 
 /**
@@ -447,25 +368,25 @@ function parseCertifications(certText: string): CertificationItem[] {
   const items = certText
     .split(/[•▪►\n]+/)
     .map(c => c.trim().replace(/^[-*]\s*/, ''))
-    .filter(c => c.length > 10);
+    .filter(c => c.length > 5);
 
   const results: CertificationItem[] = [];
 
   for (const item of items) {
     let name = item;
     let issuer = '';
-    let link = 'Credential';
+    let link = '';
 
-    name = name.replace(/\[(?:Certificate Link|Leet Code|Credential)\]/gi, '').trim();
+    const linkMatch = item.match(/\[(.*?)\]/);
+    if (linkMatch) {
+      link = linkMatch[1];
+      name = name.replace(/\[.*?\]/, '').trim();
+    }
 
     if (name.includes('—') || name.includes('–') || name.includes(' - ')) {
       const parts = name.split(/\s+[—–-]\s+/);
       name = parts[0].trim();
       issuer = parts.slice(1).join(' - ').trim();
-    }
-
-    if (!issuer && name.toLowerCase().includes('leetcode')) {
-      issuer = 'LeetCode & GeeksforGeeks';
     }
 
     results.push({
@@ -475,27 +396,7 @@ function parseCertifications(certText: string): CertificationItem[] {
     });
   }
 
-  // Merge any separate DSA/competitive programming problem items into ONE line
-  const dsaItems = results.filter(r => /solved\s+\d+|competitive\s+programming|leetcode/i.test(r.name));
-  const nonDsa = results.filter(r => !/solved\s+\d+|competitive\s+programming|leetcode/i.test(r.name));
-
-  if (dsaItems.length > 0) {
-    nonDsa.push({
-      name: 'Solved 450+ DSA and competitive programming problems (LeetCode, GeeksforGeeks, CodeChef).',
-      issuer: 'LeetCode & GeeksforGeeks',
-      link: 'Credential',
-    });
-    return nonDsa;
-  }
-
-  return results.length > 0
-    ? results
-    : [
-        { name: 'SQL Developer – Great Learning Academy [Certificate Link]', issuer: 'Great Learning Academy', link: 'Certificate Link' },
-        { name: 'Programming in Java with Data Structures & Algorithms – CipherSchools [Certificate Link]', issuer: 'CipherSchools', link: 'Certificate Link' },
-        { name: 'Claude Code (AI-assisted Software Development) – Infosys Springboard (Udemy) [Certificate Link]', issuer: 'Infosys Springboard (Udemy)', link: 'Certificate Link' },
-        { name: 'Solved 270+ Data Structures and Algorithms (DSA) problems on LeetCode and GeeksforGeeks. [Leet Code]', issuer: 'LeetCode & GeeksforGeeks', link: 'Leet Code' },
-      ];
+  return results;
 }
 
 /**
@@ -518,14 +419,14 @@ export function processParsedResume(parsed: any, prevData: ResumeData): ResumeDa
   const certifications = parseCertifications(sections.certifications);
 
   return sanitizeResumeData({
-    fullName: profile.fullName || 'Naga Sai Balam',
-    title: profile.title || 'Full Stack Developer',
-    email: profile.email || 'nagasaibalam123@gmail.com',
-    phone: profile.phone || '+91-6302854330',
-    linkedin: profile.linkedin || 'https://linkedin.com/in/nagasai-b-ab36b7285',
-    github: profile.github || 'https://github.com/nagasai1155',
-    portfolio: profile.portfolio || '',
-    summary: '', // Clear summary
+    fullName: profile.fullName || prevData.fullName || '',
+    title: profile.title || prevData.title || '',
+    email: profile.email || prevData.email || '',
+    phone: profile.phone || prevData.phone || '',
+    linkedin: profile.linkedin || prevData.linkedin || '',
+    github: profile.github || prevData.github || '',
+    portfolio: profile.portfolio || prevData.portfolio || '',
+    summary: prevData.summary || '',
     experience: experience.length > 0 ? experience : prevData.experience,
     education: education.length > 0 ? education : prevData.education,
     skills: skills.length > 0 ? skills : prevData.skills,

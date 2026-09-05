@@ -5,6 +5,7 @@ import { InterviewSummary } from './InterviewSummary';
 import { InterviewHistory } from './InterviewHistory';
 import {
   InterviewConfig,
+  InterviewType,
   InterviewPhase,
   InterviewSession,
   TranscriptEntry,
@@ -14,10 +15,11 @@ import { getInterviewSummary } from '../services/geminiInterviewService';
 import './interview.css';
 
 interface InterviewPageProps {
-  onNavigate: (page: 'settings') => void;
+  onNavigate?: (page: 'settings') => void;
+  onBackToDashboard?: () => void;
 }
 
-export function InterviewPage({ onNavigate }: InterviewPageProps) {
+export function InterviewPage({ onBackToDashboard }: InterviewPageProps) {
   const [phase, setPhase] = useState<InterviewPhase>('history');
   const [config, setConfig] = useState<InterviewConfig | null>(null);
   const [currentSession, setCurrentSession] = useState<InterviewSession | null>(null);
@@ -101,8 +103,11 @@ export function InterviewPage({ onNavigate }: InterviewPageProps) {
     setPhase('summary');
   }, []);
 
+  const [selectedTrack, setSelectedTrack] = useState<InterviewType>('coding');
+
   // Navigate between phases
-  const goToSetup = useCallback(() => {
+  const goToSetup = useCallback((track?: InterviewType) => {
+    if (track) setSelectedTrack(track);
     setPhase('setup');
     setCurrentSession(null);
   }, []);
@@ -115,6 +120,22 @@ export function InterviewPage({ onNavigate }: InterviewPageProps) {
 
   return (
     <div className="iv-page" id="interviewPage">
+      {onBackToDashboard && (
+        <div style={{ maxWidth: '1200px', margin: '0 auto 1.25rem', width: '100%' }}>
+          <button
+            className="back-to-dashboard-btn"
+            onClick={onBackToDashboard}
+            title="Return to Dashboard"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      )}
+
       {phase === 'history' && (
         <InterviewHistory
           onStartNew={goToSetup}
@@ -124,6 +145,7 @@ export function InterviewPage({ onNavigate }: InterviewPageProps) {
 
       {phase === 'setup' && (
         <InterviewSetup
+          initialType={selectedTrack}
           onStart={handleStartInterview}
           onBack={goToHistory}
         />

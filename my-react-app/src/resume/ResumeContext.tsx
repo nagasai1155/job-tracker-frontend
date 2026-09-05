@@ -22,20 +22,57 @@ interface ResumeProviderProps {
 }
 
 export function ResumeProvider({ children, initialData }: ResumeProviderProps) {
-  const [data, setDataInternal] = useState<ResumeData>(() => sanitizeResumeData(initialData));
+  const parentCtx = useContext(ResumeContext);
+  if (parentCtx && !initialData) {
+    return <>{children}</>;
+  }
+  return <ResumeProviderBase initialData={initialData}>{children}</ResumeProviderBase>;
+}
+
+function ResumeProviderBase({ children, initialData }: ResumeProviderProps) {
+  const [data, setDataInternal] = useState<ResumeData>(() => {
+    if (initialData) return sanitizeResumeData(initialData);
+    try {
+      const cached = localStorage.getItem('cached_resume_data');
+      if (cached) {
+        return sanitizeResumeData(JSON.parse(cached));
+      }
+    } catch { }
+    return { ...EMPTY_RESUME };
+  });
+
+  // Automatically synchronize state to localStorage
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('cached_resume_data', JSON.stringify(data));
+    } catch { }
+  }, [data]);
 
   const setData = useCallback((dataOrUpdater: ResumeData | ((prev: ResumeData) => ResumeData)) => {
     setDataInternal(prev => {
       const next = typeof dataOrUpdater === 'function' ? dataOrUpdater(prev) : dataOrUpdater;
-      return sanitizeResumeData(next);
+      const sanitized = sanitizeResumeData(next);
+      try {
+        localStorage.setItem('cached_resume_data', JSON.stringify(sanitized));
+      } catch { }
+      return sanitized;
     });
   }, []);
 
   const updateField = useCallback(<K extends keyof ResumeData>(key: K, value: ResumeData[K]) => {
-    setDataInternal(prev => sanitizeResumeData({ ...prev, [key]: value }));
+    setDataInternal(prev => {
+      const updated = sanitizeResumeData({ ...prev, [key]: value });
+      try {
+        localStorage.setItem('cached_resume_data', JSON.stringify(updated));
+      } catch { }
+      return updated;
+    });
   }, []);
 
   const resetData = useCallback(() => {
+    try {
+      localStorage.removeItem('cached_resume_data');
+    } catch { }
     setDataInternal({ ...EMPTY_RESUME });
   }, []);
 

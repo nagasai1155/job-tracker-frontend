@@ -1,8 +1,49 @@
 // ─── Interview Domain Types ──────────────────────────────────────────────────
 
-export type InterviewType = 'technical' | 'behavioral' | 'mixed';
+export type InterviewType = 'coding' | 'technical' | 'hr' | 'behavioral' | 'mixed';
 export type SeniorityLevel = 'junior' | 'mid' | 'senior';
 export type InterviewDuration = 10 | 20 | 30;
+
+export interface InterviewTrackMeta {
+  id: 'coding' | 'technical' | 'hr';
+  title: string;
+  badge: string;
+  badgeClass: string;
+  description?: string;
+  subtitle?: string;
+  icon: string;
+  features?: string[];
+}
+
+export const INTERVIEW_TRACKS: InterviewTrackMeta[] = [
+  {
+    id: 'coding',
+    title: 'Coding Interview',
+    badge: 'Live Code Editor',
+    badgeClass: 'iv-badge-coding',
+    subtitle: 'Data structures, algorithms & coding challenges',
+    description: 'Data structures, algorithms & coding challenges',
+    icon: '💻',
+  },
+  {
+    id: 'technical',
+    title: 'Technical Interview',
+    badge: 'System Design',
+    badgeClass: 'iv-badge-technical',
+    subtitle: 'System architecture, backend & core concepts',
+    description: 'System architecture, backend & core concepts',
+    icon: '⚡',
+  },
+  {
+    id: 'hr',
+    title: 'HR Interview',
+    badge: 'Behavioral',
+    badgeClass: 'iv-badge-hr',
+    subtitle: 'Culture fit, teamwork & situational scenarios',
+    description: 'Culture fit, teamwork & situational scenarios',
+    icon: '🤝',
+  },
+];
 
 export interface InterviewConfig {
   role: string;
@@ -54,7 +95,9 @@ export type SessionState =
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 export const INTERVIEW_TYPES: { value: InterviewType; label: string }[] = [
-  { value: 'technical', label: 'Technical' },
+  { value: 'coding', label: 'Coding Interview' },
+  { value: 'technical', label: 'Technical Interview' },
+  { value: 'hr', label: 'HR Interview' },
   { value: 'behavioral', label: 'Behavioral' },
   { value: 'mixed', label: 'Mixed' },
 ];

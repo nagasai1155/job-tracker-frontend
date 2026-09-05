@@ -136,6 +136,21 @@ export function sanitizeResumeData(raw?: Partial<ResumeData> | null): ResumeData
   };
 }
 
+export function isResumeEmpty(data?: ResumeData | null): boolean {
+  if (!data) return true;
+  const hasName = Boolean(data.fullName?.trim());
+  const hasTitle = Boolean(data.title?.trim());
+  const hasEmail = Boolean(data.email?.trim());
+  const hasPhone = Boolean(data.phone?.trim());
+  const hasSummary = Boolean(data.summary?.trim());
+  const hasExp = (data.experience || []).some(e => e.role?.trim() || e.company?.trim());
+  const hasEdu = (data.education || []).some(e => e.school?.trim() || e.degree?.trim());
+  const hasSkills = (data.skills || []).some(s => s?.trim());
+  const hasProjects = (data.projects || []).some(p => p.name?.trim());
+  const hasCerts = (data.certifications || []).some(c => c.name?.trim());
+  return !hasName && !hasTitle && !hasEmail && !hasPhone && !hasSummary && !hasExp && !hasEdu && !hasSkills && !hasProjects && !hasCerts;
+}
+
 export interface ResumeValidationError {
   field: string;
   message: string;

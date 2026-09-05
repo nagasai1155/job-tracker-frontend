@@ -14,21 +14,10 @@ const trimWords = (text: string, maxWords = 20): string => {
   return words.slice(0, maxWords).join(' ') + '…';
 };
 
-// ── Normalize and merge certifications/achievements ──────────────────────────
+// ── Normalize certifications ──────────────────────────────────────────────────
 const normalizeCertifications = (items: any[]) => {
   if (!items || items.length === 0) return [];
-  const dsaItems = items.filter(c => /solved\s+\d+|competitive\s+programming|leetcode/i.test(c.name || ''));
-  const nonDsa = items.filter(c => !/solved\s+\d+|competitive\s+programming|leetcode/i.test(c.name || ''));
-
-  if (dsaItems.length > 0) {
-    nonDsa.push({
-      name: 'Solved 450+ DSA and competitive programming problems (LeetCode, GeeksforGeeks, CodeChef).',
-      issuer: 'LeetCode & GeeksforGeeks',
-      link: 'Credential',
-    });
-    return nonDsa;
-  }
-  return items;
+  return items.filter(c => c && (c.name || c.issuer));
 };
 
 export function Template2({ data }: Template2Props) {
@@ -64,7 +53,7 @@ export function Template2({ data }: Template2Props) {
           {data.fullName || <span className="rt-placeholder" style={{ color: '#64748b' }}>Your Name</span>}
         </h1>
         <p className="rt2-sidebar-tagline">
-          {data.title || (experiences.length > 0 ? experiences[0].role || 'Full Stack Developer' : 'Full Stack Developer')}
+          {data.title || <span className="rt-placeholder" style={{ color: '#64748b' }}>Professional Title</span>}
         </p>
 
         {/* Contact */}

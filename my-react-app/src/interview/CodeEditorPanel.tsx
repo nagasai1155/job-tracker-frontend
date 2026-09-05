@@ -3,7 +3,8 @@ import Editor from '@monaco-editor/react';
 
 interface CodeEditorPanelProps {
   onSubmit: (code: string, language: string) => void;
-  onClose: () => void;
+  onClose?: () => void;
+  hideCloseButton?: boolean;
 }
 
 const LANGUAGES = [
@@ -18,7 +19,7 @@ const LANGUAGES = [
   { value: 'sql', label: 'SQL' },
 ];
 
-export function CodeEditorPanel({ onSubmit, onClose }: CodeEditorPanelProps) {
+export function CodeEditorPanel({ onSubmit, onClose, hideCloseButton }: CodeEditorPanelProps) {
   const [code, setCode] = useState('// Write your solution here\n\n');
   const [language, setLanguage] = useState('javascript');
 
@@ -29,6 +30,12 @@ export function CodeEditorPanel({ onSubmit, onClose }: CodeEditorPanelProps) {
     onSubmit(code, language);
   };
 
+  const handleReset = () => {
+    if (window.confirm('Reset code editor to starter template?')) {
+      setCode('// Write your solution here\n\n');
+    }
+  };
+
   return (
     <div className="iv-code-panel" id="codeEditorPanel">
       <div className="iv-code-header">
@@ -37,7 +44,7 @@ export function CodeEditorPanel({ onSubmit, onClose }: CodeEditorPanelProps) {
             <polyline points="16 18 22 12 16 6" />
             <polyline points="8 6 2 12 8 18" />
           </svg>
-          <span>Code Editor</span>
+          <span style={{ fontWeight: 700 }}>Code Editor</span>
           <select
             className="iv-code-lang-select"
             value={language}
@@ -51,6 +58,23 @@ export function CodeEditorPanel({ onSubmit, onClose }: CodeEditorPanelProps) {
         </div>
         <div className="iv-code-header-right">
           <button
+            className="iv-code-reset-btn"
+            onClick={handleReset}
+            title="Reset code"
+            style={{
+              padding: '0.35rem 0.6rem',
+              fontSize: '0.75rem',
+              borderRadius: '6px',
+              border: '1px solid #475569',
+              background: 'transparent',
+              color: '#cbd5e1',
+              cursor: 'pointer',
+              marginRight: '0.4rem',
+            }}
+          >
+            Reset
+          </button>
+          <button
             className="iv-code-submit-btn"
             onClick={handleSubmit}
             disabled={!code.trim() || code.trim() === '// Write your solution here'}
@@ -61,12 +85,14 @@ export function CodeEditorPanel({ onSubmit, onClose }: CodeEditorPanelProps) {
             </svg>
             Submit Code
           </button>
-          <button className="iv-code-close-btn" onClick={onClose} title="Close editor">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
+          {!hideCloseButton && onClose && (
+            <button className="iv-code-close-btn" onClick={onClose} title="Close editor">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
       <div className="iv-code-editor-wrapper">

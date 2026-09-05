@@ -5,6 +5,7 @@ interface AddJobModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (payload: CreateJobPayload) => Promise<void>;
+  initialStatus?: JobStatus;
 }
 
 const JOB_STATUS_CONFIG: { status: JobStatus; label: string; desc: string; colorClass: string }[] = [
@@ -14,18 +15,19 @@ const JOB_STATUS_CONFIG: { status: JobStatus; label: string; desc: string; color
   { status: 'Rejected', label: 'Rejected', desc: 'Archived / not selected', colorClass: 'status-opt-rejected' },
 ];
 
-export function AddJobModal({ isOpen, onClose, onSubmit }: AddJobModalProps) {
+export function AddJobModal({ isOpen, onClose, onSubmit, initialStatus = 'Applied' }: AddJobModalProps) {
   const [title, setTitle] = useState('');
   const [company, setCompany] = useState('');
-  const [status, setStatus] = useState<JobStatus>('Applied');
+  const [status, setStatus] = useState<JobStatus>(initialStatus);
   const [saving, setSaving] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
+      setStatus(initialStatus);
       setTimeout(() => titleInputRef.current?.focus(), 50);
     }
-  }, [isOpen]);
+  }, [isOpen, initialStatus]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

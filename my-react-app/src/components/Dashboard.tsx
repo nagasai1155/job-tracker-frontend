@@ -1,441 +1,157 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { api } from '../api';
-import { Job, JobStatus, CreateJobPayload } from '../types';
-import { StatsBar } from './StatsBar';
-import { JobCard } from './JobCard';
-import { AddJobModal } from './AddJobModal';
-
-type LoadState = 'loading' | 'success' | 'error';
-type AppTab = 'jobs' | 'resume';
-type ViewMode = 'grid' | 'board' | 'list';
-type SortOption = 'newest' | 'oldest' | 'company' | 'status';
+import React from 'react';
 
 interface DashboardProps {
-  onNavigate: (page: 'settings') => void;
-  activeTab?: AppTab;
-  onTabChange?: (tab: AppTab) => void;
+  onSelectFeature: (feature: 'jobs' | 'resume' | 'interview') => void;
 }
 
-const STATUSES: JobStatus[] = ['Applied', 'Interview', 'Offer', 'Rejected'];
-
-export function Dashboard({ onNavigate }: DashboardProps) {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loadState, setLoadState] = useState<LoadState>('loading');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<JobStatus | 'All'>('All');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [sortBy, setSortBy] = useState<SortOption>('newest');
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  const showToast = useCallback((msg: string) => {
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-    setToastMessage(msg);
-    toastTimerRef.current = setTimeout(() => {
-      setToastMessage(null);
-    }, 3000);
-  }, []);
-
-  // ── Keyboard shortcut: "/" to focus search ─────────────────────────────────
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-        e.preventDefault();
-        searchInputRef.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  // ── Fetch jobs ─────────────────────────────────────────────────────────────
-  const loadJobs = useCallback(async () => {
-    setLoadState('loading');
-    try {
-      const data = await api.getJobs();
-      setJobs(data);
-      setLoadState('success');
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Unknown error');
-      setLoadState('error');
-    }
-  }, []);
-
-  useEffect(() => {
-    loadJobs();
-  }, [loadJobs]);
-
-  // ── Add job ────────────────────────────────────────────────────────────────
-  const handleAddJob = useCallback(async (payload: CreateJobPayload) => {
-    const saved = await api.createJob(payload);
-    setJobs((prev) => [saved, ...prev]);
-    showToast(`Added application for ${saved.company}`);
-  }, [showToast]);
-
-  // ── Update status ──────────────────────────────────────────────────────────
-  const handleUpdateStatus = useCallback(async (id: number, newStatus: JobStatus) => {
-    const prevJobs = [...jobs];
-    setJobs((prev) =>
-      prev.map((j) => (j.id === id ? { ...j, status: newStatus } : j))
-    );
-    try {
-      await api.updateJob(id, { status: newStatus });
-      showToast(`Status changed to ${newStatus}`);
-    } catch {
-      setJobs(prevJobs);
-      showToast('Could not update status. Server unreachable.');
-    }
-  }, [jobs, showToast]);
-
-  // ── Delete job ─────────────────────────────────────────────────────────────
-  const handleDelete = useCallback(async (id: number) => {
-    const jobToDelete = jobs.find((j) => j.id === id);
-    if (!window.confirm(`Delete application for ${jobToDelete?.company || 'this role'}?`)) return;
-
-    const prevJobs = [...jobs];
-    setJobs((prev) => prev.filter((j) => j.id !== id));
-    try {
-      await api.deleteJob(id);
-      showToast('Application deleted');
-    } catch {
-      setJobs(prevJobs);
-      showToast('Could not delete application');
-    }
-  }, [jobs, showToast]);
-
-  // ── Processed Jobs ─────────────────────────────────────────────────────────
-  const processedJobs = useMemo(() => {
-    let list = jobs.filter((j) => {
-      const matchSearch =
-        j.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        j.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchStatus = statusFilter === 'All' || j.status === statusFilter;
-      return matchSearch && matchStatus;
-    });
-
-    list.sort((a, b) => {
-      if (sortBy === 'company') return a.company.localeCompare(b.company);
-      if (sortBy === 'status') return a.status.localeCompare(b.status);
-      if (sortBy === 'oldest') {
-        const dateA = a.date ? new Date(a.date).getTime() : 0;
-        const dateB = b.date ? new Date(b.date).getTime() : 0;
-        return dateA - dateB;
-      }
-      const dateA = a.date ? new Date(a.date).getTime() : a.id;
-      const dateB = b.date ? new Date(b.date).getTime() : b.id;
-      return dateB - dateA;
-    });
-
-    return list;
-  }, [jobs, searchTerm, statusFilter, sortBy]);
-
-  // ── Status counts ──────────────────────────────────────────────────────────
-  const statusCounts = useMemo(() => {
-    const counts: Record<JobStatus | 'All', number> = {
-      All: jobs.length,
-      Applied: 0,
-      Interview: 0,
-      Offer: 0,
-      Rejected: 0,
-    };
-    jobs.forEach((j) => {
-      if (j.status in counts) counts[j.status]++;
-    });
-    return counts;
-  }, [jobs]);
-
-  // ── Board View ─────────────────────────────────────────────────────────────
-  const renderBoard = () => (
-    <div className="clean-board-layout">
-      {STATUSES.map((st) => {
-        const colJobs = processedJobs.filter((j) => j.status === st);
-        return (
-          <div key={st} className="clean-board-col">
-            <div className="board-col-header">
-              <div className="board-col-title-wrap">
-                <span className={`clean-dot status-${st}`} />
-                <span className="board-col-name">{st}</span>
-              </div>
-              <span className="board-col-count">{colJobs.length}</span>
-            </div>
-
-            <div className="board-cards-stack">
-              {colJobs.length === 0 ? (
-                <div className="board-empty-placeholder">No applications</div>
-              ) : (
-                colJobs.map((j) => (
-                  <JobCard
-                    key={j.id}
-                    job={j}
-                    onDelete={handleDelete}
-                    onUpdateStatus={handleUpdateStatus}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-
-  // ── Table View ─────────────────────────────────────────────────────────────
-  const renderList = () => (
-    <div className="clean-table-container">
-      <table className="clean-table">
-        <thead>
-          <tr>
-            <th>Company & Role</th>
-            <th>Status</th>
-            <th>Date Added</th>
-            <th style={{ textAlign: 'right' }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {processedJobs.map((j) => (
-            <tr key={j.id}>
-              <td>
-                <div className="table-role-block">
-                  <span className="table-role-title">{j.title}</span>
-                  <span className="table-role-company">{j.company}</span>
-                </div>
-              </td>
-              <td>
-                <span className={`clean-status-pill status-${j.status}`}>
-                  <span className="clean-dot" />
-                  {j.status}
-                </span>
-              </td>
-              <td className="table-text-muted">
-                {j.date ? new Date(j.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent'}
-              </td>
-              <td style={{ textAlign: 'right' }}>
-                <button
-                  className="clean-delete-btn"
-                  title="Delete"
-                  onClick={() => handleDelete(j.id)}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                  </svg>
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+export function Dashboard({ onSelectFeature }: DashboardProps) {
+  const features = [
+    {
+      id: 'jobs' as const,
+      title: 'Job Tracking',
+      badge: 'Applications Pipeline',
+      badgeClass: 'badge-blue',
+      cardClass: 'card-theme-blue',
+      iconBg: '#eff6ff',
+      iconColor: '#2563eb',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+        </svg>
+      ),
+      description:
+        'Track job applications across stages, manage your Kanban pipeline, monitor interview milestones, and analyze hiring conversion rates.',
+      tags: ['Kanban Pipeline', 'Milestone Stats', 'Drag & Drop'],
+      buttonText: 'Open Job Tracking',
+      buttonClass: 'hub-btn-blue',
+    },
+    {
+      id: 'resume' as const,
+      title: 'Resume Studio',
+      badge: 'ATS Resume Builder',
+      badgeClass: 'badge-emerald',
+      cardClass: 'card-theme-emerald',
+      iconBg: '#f0fdf4',
+      iconColor: '#059669',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10 9 9 9 8 9" />
+        </svg>
+      ),
+      description:
+        'Build ATS-optimized resumes with real-time live preview, custom tech stack tagging, dynamic skill categorization, and instant PDF download.',
+      tags: ['Smart ATS Score', 'Live A4 Preview', 'Instant PDF Export'],
+      buttonText: 'Open Resume Studio',
+      buttonClass: 'hub-btn-emerald',
+    },
+    {
+      id: 'interview' as const,
+      title: 'AI Interview',
+      badge: 'AI Mock Practice',
+      badgeClass: 'badge-purple',
+      cardClass: 'card-theme-purple',
+      iconBg: '#faf5ff',
+      iconColor: '#7c3aed',
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+          <line x1="12" y1="19" x2="12" y2="23" />
+          <line x1="8" y1="23" x2="16" y2="23" />
+        </svg>
+      ),
+      description:
+        'Practice role-specific technical and behavioral questions with instant AI scoring, in-depth audio feedback, and tailored performance critiques.',
+      tags: ['Interactive Audio', 'Instant AI Feedback', 'Role-Based Prep'],
+      buttonText: 'Start AI Interview',
+      buttonClass: 'hub-btn-purple',
+    },
+  ];
 
   return (
-    <>
-      {/* ── Toast ────────────────────────────────────────────────────────── */}
-      {toastMessage && (
-        <div className="app-toast">
-          <span className="toast-dot" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
+    <div className="clean-hub-wrapper">
+      <div className="clean-hub-cards-grid">
+        {features.map((feature) => (
+          <div
+            key={feature.id}
+            className={`hub-card ${feature.cardClass}`}
+            onClick={() => onSelectFeature(feature.id)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelectFeature(feature.id);
+              }
+            }}
+            aria-label={`Open ${feature.title}`}
+          >
+            {/* Ambient Card Glow */}
+            <div className="hub-card-ambient-glow" />
 
-      {/* ── Main Workspace ───────────────────────────────────────────────── */}
-      <main className="app-main-content">
-        {/* Top: Section Header */}
-        <section className="dashboard-hero-row">
-          <div>
-            <h1 className="hero-page-title">Overview</h1>
-            <p className="hero-page-subtitle">Track and manage your applications in one clean workspace</p>
-          </div>
-
-          <button className="clean-primary-btn" onClick={() => setModalOpen(true)}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            <span>Add Application</span>
-          </button>
-        </section>
-
-        {/* Section: Metrics */}
-        <section className="dashboard-stats-wrapper">
-          <StatsBar
-            jobs={jobs}
-            activeFilter={statusFilter}
-            onFilterChange={(f) => setStatusFilter(f)}
-          />
-        </section>
-
-        {/* Section: Filter and Controls Bar */}
-        <section className="clean-toolbar">
-          {/* Status Filters */}
-          <div className="clean-filter-group">
-            <button
-              className={`clean-filter-btn ${statusFilter === 'All' ? 'active' : ''}`}
-              onClick={() => setStatusFilter('All')}
-            >
-              All <span className="clean-count-badge">{statusCounts.All}</span>
-            </button>
-            {STATUSES.map((st) => (
-              <button
-                key={st}
-                className={`clean-filter-btn ${statusFilter === st ? 'active' : ''}`}
-                onClick={() => setStatusFilter(st)}
+            {/* Top Bar: Icon & Pill Badge */}
+            <div className="hub-card-header">
+              <div
+                className="hub-card-icon-wrap"
+                style={{ backgroundColor: feature.iconBg, color: feature.iconColor }}
               >
-                <span className={`clean-dot status-${st}`} />
-                {st} <span className="clean-count-badge">{statusCounts[st]}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Search, Sort, View mode */}
-          <div className="clean-tools-group">
-            <div className="clean-search-input-wrap">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.2">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Search jobs..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm && (
-                <button className="clear-search-x" onClick={() => setSearchTerm('')}>
-                  &times;
-                </button>
-              )}
+                {feature.icon}
+              </div>
+              <span className={`hub-card-badge ${feature.badgeClass}`}>
+                {feature.badge}
+              </span>
             </div>
 
-            <select
-              className="clean-select-box"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="company">Company (A-Z)</option>
-              <option value="status">Status</option>
-            </select>
+            {/* Title & Description */}
+            <div className="hub-card-body">
+              <h2 className="hub-card-title">{feature.title}</h2>
+              <p className="hub-card-description">{feature.description}</p>
 
-            <div className="clean-view-switch">
+              {/* Feature Highlights Pills */}
+              <div className="hub-card-tags">
+                {feature.tags.map((tag) => (
+                  <span key={tag} className="hub-tag-pill">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Card Action Footer */}
+            <div className="hub-card-footer">
               <button
-                className={`view-switch-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                onClick={() => setViewMode('grid')}
-                title="Grid"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <rect x="3" y="3" width="7" height="7" rx="1"/>
-                  <rect x="14" y="3" width="7" height="7" rx="1"/>
-                  <rect x="14" y="14" width="7" height="7" rx="1"/>
-                  <rect x="3" y="14" width="7" height="7" rx="1"/>
-                </svg>
-              </button>
-              <button
-                className={`view-switch-btn ${viewMode === 'board' ? 'active' : ''}`}
-                onClick={() => setViewMode('board')}
-                title="Board"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <rect x="3" y="3" width="5" height="18" rx="1" />
-                  <rect x="10" y="3" width="5" height="13" rx="1" />
-                  <rect x="17" y="3" width="5" height="16" rx="1" />
-                </svg>
-              </button>
-              <button
-                className={`view-switch-btn ${viewMode === 'list' ? 'active' : ''}`}
-                onClick={() => setViewMode('list')}
-                title="List"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <line x1="8" y1="6" x2="21" y2="6" />
-                  <line x1="8" y1="12" x2="21" y2="12" />
-                  <line x1="8" y1="18" x2="21" y2="18" />
-                  <line x1="3" y1="6" x2="3.01" y2="6" />
-                  <line x1="3" y1="12" x2="3.01" y2="12" />
-                  <line x1="3" y1="18" x2="3.01" y2="18" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* Section: Application Results */}
-        <section className="dashboard-results-area">
-          {loadState === 'loading' && (
-            <div className="clean-skeleton-grid">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="clean-skeleton-card" />
-              ))}
-            </div>
-          )}
-
-          {loadState === 'error' && (
-            <div className="clean-error-card">
-              <p>⚠️ Failed to load applications from server ({errorMsg})</p>
-              <button className="clean-primary-btn" onClick={loadJobs}>Retry</button>
-            </div>
-          )}
-
-          {loadState === 'success' && jobs.length === 0 && (
-            <div className="clean-empty-state">
-              <div className="empty-state-round-icon">💼</div>
-              <h3>No applications tracked yet</h3>
-              <p>Start keeping track of your job applications, interviews, and offers.</p>
-              <button className="clean-primary-btn" onClick={() => setModalOpen(true)}>
-                Add First Application
-              </button>
-            </div>
-          )}
-
-          {loadState === 'success' && jobs.length > 0 && processedJobs.length === 0 && (
-            <div className="clean-empty-state">
-              <div className="empty-state-round-icon">🔍</div>
-              <h3>No matches found</h3>
-              <p>Try adjusting your search keywords or filter status.</p>
-              <button
-                className="clean-secondary-btn"
-                onClick={() => {
-                  setSearchTerm('');
-                  setStatusFilter('All');
+                className={`hub-card-action-btn ${feature.buttonClass}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectFeature(feature.id);
                 }}
+                tabIndex={-1}
               >
-                Clear Filters
+                <span>{feature.buttonText}</span>
+                <svg
+                  className="hub-btn-arrow"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
               </button>
             </div>
-          )}
-
-          {loadState === 'success' && processedJobs.length > 0 && (
-            <>
-              {viewMode === 'board' && renderBoard()}
-              {viewMode === 'list' && renderList()}
-              {viewMode === 'grid' && (
-                <div className="clean-cards-grid">
-                  {processedJobs.map((j) => (
-                    <JobCard
-                      key={j.id}
-                      job={j}
-                      onDelete={handleDelete}
-                      onUpdateStatus={handleUpdateStatus}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </section>
-      </main>
-
-      {/* ── Modal ─────────────────────────────────────────────────────────── */}
-      <AddJobModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleAddJob}
-      />
-    </>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

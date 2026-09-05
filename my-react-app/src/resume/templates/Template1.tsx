@@ -60,41 +60,34 @@ const formatBulletText = (text: string): React.ReactNode => {
   return text;
 };
 
-// ── Skills Categories generator matching screenshot ───────────────────────────
+// ── Skills Categories generator based strictly on user data ───────────────────
 const getSkillsCategories = (skills: string[]) => {
-  const defaultMapping: { [key: string]: string } = {
-    'Programming Languages': 'Java, C++, JavaScript, SQL, TypeScript',
-    'Web Technologies': 'React.js, Next.js, HTML5, CSS3, Tailwind CSS, Spring Boot, Node.js, RESTful APIs',
-    'Databases': 'MySQL, MongoDB',
-    'Developer Tools': 'Git, GitHub, Postman, Cursor IDE, Claude AI, AI-assisted Development',
-    'DevOps': 'AWS (Basics), Docker',
-    'Core Concepts': 'Object-Oriented Programming (OOPs), Data Structures & Algorithms',
-  };
+  if (!skills || skills.length === 0) return [];
 
   const categories: { label: string; keywords: string[]; items: string[] }[] = [
     {
       label: 'Programming Languages',
-      keywords: ['java', 'c++', 'javascript', 'sql', 'typescript', 'python', 'c#', 'c', 'html', 'css', 'php', 'ruby', 'go', 'rust', 'kotlin', 'swift'],
+      keywords: ['java', 'c++', 'javascript', 'sql', 'typescript', 'python', 'c#', 'c', 'html', 'css', 'php', 'ruby', 'go', 'rust', 'kotlin', 'swift', 'r', 'scala', 'dart'],
       items: [],
     },
     {
       label: 'Web Technologies',
-      keywords: ['react', 'react.js', 'reactjs', 'next.js', 'nextjs', 'html5', 'css3', 'tailwind', 'tailwind css', 'tailwindcss', 'spring boot', 'springboot', 'node.js', 'nodejs', 'restful apis', 'rest apis', 'rest api', 'express', 'angular', 'vue', 'django', 'flask'],
+      keywords: ['react', 'react.js', 'reactjs', 'next.js', 'nextjs', 'html5', 'css3', 'tailwind', 'tailwind css', 'tailwindcss', 'spring boot', 'springboot', 'node.js', 'nodejs', 'restful apis', 'rest apis', 'rest api', 'express', 'angular', 'vue', 'django', 'flask', 'fastapi'],
       items: [],
     },
     {
       label: 'Databases',
-      keywords: ['mysql', 'mongodb', 'postgresql', 'postgres', 'redis', 'oracle', 'sqlite'],
+      keywords: ['mysql', 'mongodb', 'postgresql', 'postgres', 'redis', 'oracle', 'sqlite', 'mariadb', 'dynamodb', 'cassandra'],
       items: [],
     },
     {
       label: 'Developer Tools',
-      keywords: ['git', 'github', 'postman', 'cursor ide', 'cursor', 'claude ai', 'ai-assisted development', 'jira', 'vscode', 'intellij', 'eclipse'],
+      keywords: ['git', 'github', 'postman', 'cursor ide', 'cursor', 'claude ai', 'ai-assisted development', 'jira', 'vscode', 'intellij', 'eclipse', 'figma'],
       items: [],
     },
     {
-      label: 'DevOps',
-      keywords: ['aws', 'aws (basics)', 'docker', 'kubernetes', 'ci/cd', 'jenkins', 'linux', 'azure', 'gcp'],
+      label: 'DevOps & Cloud',
+      keywords: ['aws', 'aws (basics)', 'docker', 'kubernetes', 'ci/cd', 'jenkins', 'linux', 'azure', 'gcp', 'terraform', 'ansible'],
       items: [],
     },
     {
@@ -104,47 +97,60 @@ const getSkillsCategories = (skills: string[]) => {
     },
   ];
 
+  const otherItems: string[] = [];
+
   skills.forEach(skill => {
     const trimmed = skill.trim();
     if (!trimmed) return;
     const lower = trimmed.toLowerCase();
 
+    let matched = false;
     for (const cat of categories) {
       if (cat.keywords.some(k => lower === k || lower.startsWith(k + ' ') || lower.endsWith(' ' + k))) {
         if (!cat.items.includes(trimmed)) {
           cat.items.push(trimmed);
         }
+        matched = true;
         break;
       }
     }
+
+    if (!matched && !otherItems.includes(trimmed)) {
+      otherItems.push(trimmed);
+    }
   });
 
-  return categories.map(cat => ({
-    label: cat.label,
-    value: cat.items.length > 0 ? cat.items.join(', ') : (defaultMapping[cat.label] || ''),
-  })).filter(c => c.value);
+  const result = categories
+    .filter(cat => cat.items.length > 0)
+    .map(cat => ({
+      label: cat.label,
+      value: cat.items.join(', '),
+    }));
+
+  if (otherItems.length > 0) {
+    result.push({
+      label: result.length > 0 ? 'Other Skills' : 'Technical Skills',
+      value: otherItems.join(', '),
+    });
+  }
+
+  return result;
 };
 
-// ── Certifications formatter matching screenshot ──────────────────────────────
+// ── Certifications formatter based strictly on user data ─────────────────────
 const formatCertItem = (cert: CertificationItem) => {
-  const name = cert.name || '';
-  const issuer = cert.issuer || '';
-  const linkText = cert.link || (name.toLowerCase().includes('leetcode') ? 'Leet Code' : 'Certificate Link');
+  const name = (cert.name || '').trim();
+  const issuer = (cert.issuer || '').trim();
+  const link = (cert.link || '').trim();
 
-  // If name already contains full line
-  if (name.includes('[') && name.includes(']')) {
-    return name;
-  }
+  if (!name && !issuer) return null;
 
-  if (name.toLowerCase().includes('solved 270+') || name.toLowerCase().includes('leetcode and geeksforgeeks')) {
-    return `Solved 270+ Data Structures and Algorithms (DSA) problems on LeetCode and GeeksforGeeks. [${linkText}]`;
-  }
+  const parts: string[] = [];
+  if (name) parts.push(name);
+  if (issuer) parts.push(`– ${issuer}`);
+  if (link) parts.push(`[${link}]`);
 
-  if (issuer && !name.includes(issuer)) {
-    return `${name} – ${issuer} [${linkText}]`;
-  }
-
-  return `${name} [${linkText}]`;
+  return parts.join(' ');
 };
 
 export function Template1({ data }: Template1Props) {
@@ -187,26 +193,28 @@ export function Template1({ data }: Template1Props) {
           <section key="experience" className="rt1-section">
             <h2 className="rt1-section-title">Experience</h2>
             {experiences.map((exp, i) => {
-              const isSendora = exp.company.toLowerCase().includes('sendora');
-              const isEizen = exp.company.toLowerCase().includes('eizen');
-
-              const docType = exp.documentType || (isSendora ? '[Offer Letter]' : isEizen ? '[Experience Letter]' : '');
-              const techStack = exp.techStack || (isSendora ? 'Next.js, Node.js, REST APIs, OAuth 2.0, JWT, SQL' : isEizen ? 'React.js, Spring Boot, AI/ML Integration' : '');
+              const role = exp.role || 'Role / Title';
+              const duration = exp.duration || '';
+              const company = exp.company || '';
+              const docType = exp.documentType || '';
+              const techStack = exp.techStack || '';
 
               return (
                 <div key={i} className="rt1-exp-block">
                   <div className="rt1-row-between">
-                    <span className="rt1-bold rt1-role-text">{exp.role || 'Software Engineer Intern'}</span>
-                    <span className="rt1-bold rt1-date-text">{exp.duration || 'Oct 2025 – Dec 2025'}</span>
+                    <span className="rt1-bold rt1-role-text">{role}</span>
+                    {duration && <span className="rt1-bold rt1-date-text">{duration}</span>}
                   </div>
-                  <div className="rt1-row-between rt1-sub-row">
-                    <span className="rt1-italic rt1-company-text">
-                      {exp.company || 'Sendora.ai'} {docType && <span className="rt1-doc-link">{docType}</span>}
-                    </span>
-                    {techStack && (
-                      <span className="rt1-italic rt1-tech-text">{techStack}</span>
-                    )}
-                  </div>
+                  {(company || techStack || docType) && (
+                    <div className="rt1-row-between rt1-sub-row">
+                      <span className="rt1-italic rt1-company-text">
+                        {company} {docType && <span className="rt1-doc-link">{docType}</span>}
+                      </span>
+                      {techStack && (
+                        <span className="rt1-italic rt1-tech-text">{techStack}</span>
+                      )}
+                    </div>
+                  )}
                   {renderExpBullets(exp.description)}
                 </div>
               );
@@ -238,15 +246,17 @@ export function Template1({ data }: Template1Props) {
             {educations.map((edu, i) => (
               <div key={i} className="rt1-edu-block">
                 <div className="rt1-row-between">
-                  <span className="rt1-bold">{edu.degree || 'Bachelor of Technology (B.Tech) – Computer Science and Engineering'}</span>
-                  <span className="rt1-bold rt1-date-text">{edu.year || 'July 2021 – August 2025'}</span>
+                  <span className="rt1-bold">{edu.degree || 'Degree / Program'}</span>
+                  {edu.year && <span className="rt1-bold rt1-date-text">{edu.year}</span>}
                 </div>
-                <div className="rt1-row-between rt1-sub-row">
-                  <span className="rt1-italic">
-                    {edu.school || 'Lovely Professional University'}{edu.gpa ? `, GPA: ${edu.gpa}` : ', GPA: 8.1'}
-                  </span>
-                  <span className="rt1-italic">{edu.location || 'Punjab, India'}</span>
-                </div>
+                {(edu.school || edu.location || edu.gpa) && (
+                  <div className="rt1-row-between rt1-sub-row">
+                    <span className="rt1-italic">
+                      {edu.school || ''}{edu.gpa ? `, GPA: ${edu.gpa}` : ''}
+                    </span>
+                    {edu.location && <span className="rt1-italic">{edu.location}</span>}
+                  </div>
+                )}
               </div>
             ))}
           </section>
@@ -261,12 +271,12 @@ export function Template1({ data }: Template1Props) {
               <div key={i} className="rt1-proj-block">
                 <div className="rt1-row-between">
                   <span>
-                    <span className="rt1-bold">{proj.name || 'AI Interview Preparation Platform'}</span>
+                    <span className="rt1-bold">{proj.name || 'Project Name'}</span>
                     {proj.techStack && (
                       <span className="rt1-proj-tech"> — {proj.techStack}</span>
                     )}
                   </span>
-                  <span className="rt1-bold rt1-date-text">{proj.duration || '2026'}</span>
+                  {proj.duration && <span className="rt1-bold rt1-date-text">{proj.duration}</span>}
                 </div>
                 {proj.bullets && proj.bullets.length > 0 && (
                   <ul className="rt1-bullets">
@@ -281,14 +291,15 @@ export function Template1({ data }: Template1Props) {
         );
 
       case 'certifications':
-        if (certifications.length === 0) return null;
+        const validCerts = certifications.map(formatCertItem).filter(Boolean);
+        if (validCerts.length === 0) return null;
         return (
           <section key="certifications" className="rt1-section">
             <h2 className="rt1-section-title">Certifications & Achievements</h2>
             <ul className="rt1-bullets rt1-certs-list">
-              {certifications.map((cert, i) => (
+              {validCerts.map((certText, i) => (
                 <li key={i}>
-                  {formatCertItem(cert)}
+                  {certText}
                 </li>
               ))}
             </ul>
@@ -316,10 +327,18 @@ export function Template1({ data }: Template1Props) {
       {/* ── Header (Centered, Pure Black ATS Standard) ───────────────────────── */}
       <header className="rt1-header">
         <h1 className="rt1-name">
-          {data.fullName ? data.fullName.toUpperCase() : 'NAGA SAI BALAM'}
+          {data.fullName?.trim() ? (
+            data.fullName.toUpperCase()
+          ) : (
+            <span className="rt-placeholder" style={{ color: '#94a3b8' }}>YOUR NAME</span>
+          )}
         </h1>
         <div className="rt1-title">
-          {data.title || 'Full Stack Developer'}
+          {data.title?.trim() ? (
+            data.title
+          ) : (
+            <span className="rt-placeholder" style={{ color: '#94a3b8' }}>Professional Title</span>
+          )}
         </div>
 
         <div className="rt1-contact-rows">

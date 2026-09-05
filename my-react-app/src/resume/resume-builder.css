@@ -178,6 +178,15 @@
   background: var(--bg-subtle);
   border-bottom: 1px solid var(--border-color);
   user-select: none;
+  transition: background 0.15s ease;
+}
+
+.rb-section.rb-collapsed .rb-section-bar {
+  border-bottom: none;
+}
+
+.rb-section.rb-collapsed:hover .rb-section-bar {
+  background: rgba(0, 0, 0, 0.035);
 }
 
 .rb-section-drag-handle {

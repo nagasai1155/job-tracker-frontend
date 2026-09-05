@@ -14,18 +14,18 @@ import './resume-templates.css';
 type AppTab = 'jobs' | 'resume';
 
 interface ResumeBuilderProps {
-  onNavigate: (page: 'settings') => void;
+  onNavigate?: (page: 'settings') => void;
+  onBackToDashboard?: () => void;
   activeTab?: AppTab;
   onTabChange?: (tab: AppTab) => void;
 }
 
-function ResumeBuilderInner({ onNavigate }: ResumeBuilderProps) {
+function ResumeBuilderInner({ onBackToDashboard }: ResumeBuilderProps) {
   const { data, setData } = useResume();
   const [template, setTemplate] = useState<TemplateName>('classic');
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [loaded, setLoaded] = useState(false);
 
   // ── Document Scaler & Zoom State ──────────────────────────────────────────
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -100,24 +100,7 @@ function ResumeBuilderInner({ onNavigate }: ResumeBuilderProps) {
     setManualZoom(1.0);
   };
 
-  // ── Load saved resume on mount ────────────────────────────────────────────
-  useEffect(() => {
-    if (loaded) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const saved = await api.getResume();
-        if (saved && !cancelled) {
-          setData(saved);
-        }
-      } catch {
-        // Silently ignore if offline
-      } finally {
-        if (!cancelled) setLoaded(true);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [loaded, setData]);
+
 
   // ── Validation check ──────────────────────────────────────────────────────
   const checkValidation = useCallback(() => {
@@ -222,6 +205,21 @@ function ResumeBuilderInner({ onNavigate }: ResumeBuilderProps) {
     <>
       {/* ── Main Content ─────────────────────────────────────────────────── */}
       <div className="app-main-content" style={{ maxWidth: 1280, padding: '1.75rem 2rem 4rem' }}>
+        {onBackToDashboard && (
+          <div style={{ marginBottom: '1.25rem' }}>
+            <button
+              className="back-to-dashboard-btn"
+              onClick={onBackToDashboard}
+              title="Return to Dashboard"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+              </svg>
+              <span>Back to Dashboard</span>
+            </button>
+          </div>
+        )}
         <div className="rb-layout">
           {/* Left — Form */}
           <ResumeForm />

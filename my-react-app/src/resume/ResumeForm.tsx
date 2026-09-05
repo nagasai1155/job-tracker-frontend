@@ -9,7 +9,6 @@ import {
   CertificationItem,
   SectionKey,
   DEFAULT_SECTION_ORDER,
-  EMPTY_RESUME,
   EMPTY_EXPERIENCE,
   EMPTY_EDUCATION,
   EMPTY_PROJECT,
@@ -18,10 +17,16 @@ import {
 import './resume-builder.css';
 
 export function ResumeForm() {
-  const { data, updateField, setData } = useResume();
+  const { data, updateField, setData, resetData } = useResume();
   const [skillInput, setSkillInput] = useState('');
   const [draggedSection, setDraggedSection] = useState<SectionKey | null>(null);
-  const [collapsedSections, setCollapsedSections] = useState<{ [key: string]: boolean }>({});
+  const [collapsedSections, setCollapsedSections] = useState<{ [key: string]: boolean }>(() => {
+    const initial: { [key: string]: boolean } = {};
+    DEFAULT_SECTION_ORDER.forEach(sec => {
+      initial[sec] = true;
+    });
+    return initial;
+  });
 
   // PDF import state
   const [uploading, setUploading] = useState(false);
@@ -66,11 +71,16 @@ export function ResumeForm() {
 
   const handleClearForm = useCallback(() => {
     if (window.confirm('Are you sure you want to clear all fields in the resume form? This cannot be undone.')) {
-      setData({ ...EMPTY_RESUME });
+      resetData();
       setParseSuccessMsg(false);
       setUploadError('');
+      const initial: { [key: string]: boolean } = {};
+      DEFAULT_SECTION_ORDER.forEach(sec => {
+        initial[sec] = true;
+      });
+      setCollapsedSections(initial);
     }
-  }, [setData]);
+  }, [resetData]);
 
   const sectionOrder = useMemo(
     () => (Array.isArray(data.sectionOrder) && data.sectionOrder.length > 0 ? data.sectionOrder : DEFAULT_SECTION_ORDER),
@@ -126,8 +136,26 @@ export function ResumeForm() {
   };
 
   const toggleCollapse = (key: string) => {
-    setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
+    setCollapsedSections(prev => {
+      const current = prev[key] !== undefined ? prev[key] : true;
+      return { ...prev, [key]: !current };
+    });
   };
+
+  const areAllCollapsed = useMemo(() => {
+    return sectionOrder.every(sec => (collapsedSections[sec] !== undefined ? collapsedSections[sec] : true));
+  }, [sectionOrder, collapsedSections]);
+
+  const toggleAllSections = useCallback(() => {
+    setCollapsedSections(prev => {
+      const shouldCollapse = !areAllCollapsed;
+      const updated: { [key: string]: boolean } = {};
+      sectionOrder.forEach(sec => {
+        updated[sec] = shouldCollapse;
+      });
+      return updated;
+    });
+  }, [areAllCollapsed, sectionOrder]);
 
   // ── Experience helpers ──────────────────────────────────────────────────────
   const addExperience = useCallback(() => {
@@ -337,14 +365,14 @@ export function ResumeForm() {
   const renderSection = (key: SectionKey, index: number) => {
     const isFirst = index === 0;
     const isLast = index === sectionOrder.length - 1;
-    const isCollapsed = !!collapsedSections[key];
+    const isCollapsed = collapsedSections[key] !== undefined ? collapsedSections[key] : true;
 
     switch (key) {
       case 'experience':
         return (
           <div
             key="experience"
-            className="rb-section rb-reorderable-section"
+            className={`rb-section rb-reorderable-section ${isCollapsed ? 'rb-collapsed' : ''}`}
             draggable
             onDragStart={() => handleDragStart('experience')}
             onDragOver={handleDragOver}
@@ -527,7 +555,7 @@ export function ResumeForm() {
         return (
           <div
             key="skills"
-            className="rb-section rb-reorderable-section"
+            className={`rb-section rb-reorderable-section ${isCollapsed ? 'rb-collapsed' : ''}`}
             draggable
             onDragStart={() => handleDragStart('skills')}
             onDragOver={handleDragOver}
@@ -622,7 +650,7 @@ export function ResumeForm() {
         return (
           <div
             key="education"
-            className="rb-section rb-reorderable-section"
+            className={`rb-section rb-reorderable-section ${isCollapsed ? 'rb-collapsed' : ''}`}
             draggable
             onDragStart={() => handleDragStart('education')}
             onDragOver={handleDragOver}
@@ -787,7 +815,7 @@ export function ResumeForm() {
         return (
           <div
             key="projects"
-            className="rb-section rb-reorderable-section"
+            className={`rb-section rb-reorderable-section ${isCollapsed ? 'rb-collapsed' : ''}`}
             draggable
             onDragStart={() => handleDragStart('projects')}
             onDragOver={handleDragOver}
@@ -980,7 +1008,7 @@ export function ResumeForm() {
         return (
           <div
             key="certifications"
-            className="rb-section rb-reorderable-section"
+            className={`rb-section rb-reorderable-section ${isCollapsed ? 'rb-collapsed' : ''}`}
             draggable
             onDragStart={() => handleDragStart('certifications')}
             onDragOver={handleDragOver}
@@ -1120,7 +1148,7 @@ export function ResumeForm() {
         return (
           <div
             key="summary"
-            className="rb-section rb-reorderable-section"
+            className={`rb-section rb-reorderable-section ${isCollapsed ? 'rb-collapsed' : ''}`}
             draggable
             onDragStart={() => handleDragStart('summary')}
             onDragOver={handleDragOver}
@@ -1186,8 +1214,17 @@ export function ResumeForm() {
           <h2 className="rb-panel-title">Resume Details</h2>
         </div>
 
-        {/* Sleek Compact Header Actions: Clear Form & Import PDF */}
+        {/* Sleek Compact Header Actions: Expand/Collapse All, Clear Form & Import PDF */}
         <div className="rb-form-header-actions">
+          <button
+            type="button"
+            className="rb-clear-btn"
+            id="toggleAllSectionsBtn"
+            onClick={toggleAllSections}
+            title={areAllCollapsed ? 'Expand all sections' : 'Collapse all sections'}
+          >
+            <span>{areAllCollapsed ? 'Expand All' : 'Collapse All'}</span>
+          </button>
           <button
             type="button"
             className="rb-clear-btn"

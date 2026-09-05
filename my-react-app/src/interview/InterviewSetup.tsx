@@ -5,19 +5,20 @@ import {
   InterviewType,
   SeniorityLevel,
   InterviewDuration,
-  INTERVIEW_TYPES,
+  INTERVIEW_TRACKS,
   SENIORITY_LEVELS,
   DURATION_OPTIONS,
 } from './types';
 
 interface InterviewSetupProps {
+  initialType?: InterviewType;
   onStart: (config: InterviewConfig) => void;
   onBack: () => void;
 }
 
-export function InterviewSetup({ onStart, onBack }: InterviewSetupProps) {
+export function InterviewSetup({ initialType, onStart, onBack }: InterviewSetupProps) {
   const [role, setRole] = useState('');
-  const [interviewType, setInterviewType] = useState<InterviewType>('mixed');
+  const [interviewType, setInterviewType] = useState<InterviewType>(initialType || 'coding');
   const [seniority, setSeniority] = useState<SeniorityLevel>('mid');
   const [duration, setDuration] = useState<InterviewDuration>(20);
   const [resumeSource, setResumeSource] = useState<'saved' | 'paste'>('saved');
@@ -139,6 +140,32 @@ export function InterviewSetup({ onStart, onBack }: InterviewSetupProps) {
       <div className="iv-setup-grid">
         {/* Left column: Form */}
         <div className="iv-setup-form">
+          {/* ── Choose Interview Track ── */}
+          <div className="iv-form-group">
+            <label className="iv-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+              Interview Track
+            </label>
+            <div className="iv-track-pill-selector">
+              {INTERVIEW_TRACKS.map((track) => {
+                const isSelected = interviewType === track.id;
+                return (
+                  <button
+                    type="button"
+                    key={track.id}
+                    className={`iv-track-pill-item ${isSelected ? 'active ' + track.id : ''}`}
+                    onClick={() => setInterviewType(track.id)}
+                  >
+                    <span className="iv-pill-icon">{track.icon}</span>
+                    <span className="iv-pill-label">{track.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Role */}
           <div className="iv-form-group">
             <label className="iv-label" htmlFor="interviewRole">
@@ -152,7 +179,7 @@ export function InterviewSetup({ onStart, onBack }: InterviewSetupProps) {
               type="text"
               id="interviewRole"
               className="iv-input"
-              placeholder="e.g. Backend Developer, Product Manager..."
+              placeholder="e.g. Backend Developer, Full Stack Engineer..."
               value={role}
               onChange={(e) => setRole(e.target.value)}
               autoFocus
@@ -170,6 +197,7 @@ export function InterviewSetup({ onStart, onBack }: InterviewSetupProps) {
             </label>
             <div className="iv-resume-toggle">
               <button
+                type="button"
                 className={`iv-toggle-btn ${resumeSource === 'saved' ? 'active' : ''}`}
                 onClick={() => setResumeSource('saved')}
                 disabled={!hasSavedResume}
@@ -178,6 +206,7 @@ export function InterviewSetup({ onStart, onBack }: InterviewSetupProps) {
                 Use Saved Resume
               </button>
               <button
+                type="button"
                 className={`iv-toggle-btn ${resumeSource === 'paste' ? 'active' : ''}`}
                 onClick={() => setResumeSource('paste')}
               >
@@ -215,22 +244,8 @@ export function InterviewSetup({ onStart, onBack }: InterviewSetupProps) {
             )}
           </div>
 
-          {/* Interview Type, Seniority, Duration — in a row */}
+          {/* Seniority & Duration — in a row */}
           <div className="iv-options-row">
-            <div className="iv-form-group iv-form-group-sm">
-              <label className="iv-label" htmlFor="interviewType">Interview Type</label>
-              <select
-                id="interviewType"
-                className="iv-select"
-                value={interviewType}
-                onChange={(e) => setInterviewType(e.target.value as InterviewType)}
-              >
-                {INTERVIEW_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
-                ))}
-              </select>
-            </div>
-
             <div className="iv-form-group iv-form-group-sm">
               <label className="iv-label" htmlFor="interviewSeniority">Seniority</label>
               <select
@@ -261,14 +276,14 @@ export function InterviewSetup({ onStart, onBack }: InterviewSetupProps) {
           </div>
         </div>
 
-        {/* Right column: Camera Preview */}
+        {/* Right column: Camera Preview & Permissions */}
         <div className="iv-camera-section">
           <label className="iv-label">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="23 7 16 12 23 17 23 7" />
               <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
             </svg>
-            Camera Preview
+            Camera & Mic Preview
           </label>
           <div className="iv-camera-preview-container">
             {hasPermission ? (
@@ -283,15 +298,16 @@ export function InterviewSetup({ onStart, onBack }: InterviewSetupProps) {
             ) : (
               <div className="iv-camera-placeholder">
                 <div className="iv-camera-icon">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.4">
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.4">
                     <polygon points="23 7 16 12 23 17 23 7" />
                     <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                   </svg>
                 </div>
                 <p className="iv-camera-text">
-                  {cameraError || 'Enable camera to see yourself during the interview'}
+                  {cameraError || 'Enable camera and microphone for live AI interview'}
                 </p>
                 <button
+                  type="button"
                   className="iv-camera-enable-btn"
                   onClick={requestPermission}
                   disabled={isRequesting}
@@ -308,7 +324,7 @@ export function InterviewSetup({ onStart, onBack }: InterviewSetupProps) {
                         <polygon points="23 7 16 12 23 17 23 7" />
                         <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                       </svg>
-                      Enable Camera & Microphone
+                      Enable Camera & Mic
                     </>
                   )}
                 </button>
@@ -319,29 +335,34 @@ export function InterviewSetup({ onStart, onBack }: InterviewSetupProps) {
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                Camera Ready
+                Camera & Mic Ready
               </div>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* Start Button */}
-      <div className="iv-setup-actions">
-        <button
-          className="iv-start-btn"
-          onClick={handleStart}
-          disabled={!canStart}
-          id="startInterviewBtn"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="5 3 19 12 5 21 5 3" />
-          </svg>
-          Start Interview
-        </button>
-        {!hasPermission && role.trim() && (
-          <p className="iv-start-hint">Enable camera access to start the interview</p>
-        )}
+          <div className="iv-camera-actions">
+            <button
+              className="iv-start-btn"
+              onClick={handleStart}
+              disabled={!canStart}
+              id="startInterviewBtn"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              Start Interview
+            </button>
+            {!canStart && (
+              <p className="iv-start-hint">
+                {!role.trim()
+                  ? 'Enter a target job role to proceed'
+                  : !hasPermission
+                  ? 'Enable camera & mic to start interview'
+                  : 'Add or select a resume'}
+              </p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
